@@ -8,5 +8,3 @@
 - Elaborate basic tests for main algorithm by supplying inputs by file
 - Implement output visualization functionality
 	+ Search good visalization libraries
-
-This is a local change

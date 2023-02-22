@@ -1,0 +1,12 @@
+- Get familiar with the physics of the problem and the input/output of the algorithm
+- Implement the main algorithm ()
+	+ Search for good FFT and Tensor libraries
+- Write basic tests (hardcoded)
+- Determine some file format to read in arbritrary materials
+- Implement the input functionality based on the chosen file format
+- Write elementary tests for the input functionality
+- Elaborate basic tests for main algorithm by supplying inputs by file
+- Implement output visualization functionality
+	+ Search good visalization libraries
+
+This is a local change

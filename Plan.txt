@@ -1,10 +1,9 @@
-- Get familiar with the physics of the problem and the input/output of the algorithm
-- Implement the main algorithm ()
-	+ Search for good FFT and Tensor libraries
-- Write basic tests (hardcoded)
-- Determine some file format to read in arbritrary materials
-- Implement the input functionality based on the chosen file format
-- Write elementary tests for the input functionality
-- Elaborate basic tests for main algorithm by supplying inputs by file
-- Implement output visualization functionality
+- Implement the main algorithm [26/02]
+	+ Search for good FFT and Tensor libraries -> FFTW and Eigen
+- Write basic tests (hardcoded) [05/03]
+- Implement the input functionality based on the chosen file format [12/03]
+	+ Determine some file format to read in arbritrary materials
+- Write elementary tests for the input functionality [12/03]
+- Elaborate basic tests for main algorithm by supplying inputs by file [19/03]
+- Implement output visualization functionality [24/03]
 	+ Search good visalization libraries

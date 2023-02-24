@@ -1,5 +1,5 @@
 - Implement the main algorithm in Python [26/02]
-	+ use Numpy (Einsum) for tensor operations & PyFFTW for FFT
+	+ use Numpy (Einsum/multiplication, fft) 
 - Write basic tests (hardcoded) [03/03]
 	+ Search for good testing framework
 	+ Find some test cases
@@ -11,5 +11,5 @@
 - Write elementary tests for the input functionality [12/03]
 - Elaborate basic tests for main algorithm by supplying inputs by file [19/03]
 - Implement output visualization functionality [24/03]
-	+ Search good visalization libraries
+	+ Search good visalization libraries -> (PyVTK?)
 

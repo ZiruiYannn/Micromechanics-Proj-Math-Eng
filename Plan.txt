@@ -3,6 +3,7 @@
 - Write basic tests (hardcoded) [03/03]
 	+ Search for good testing framework
 	+ Find some test cases
+- Write basic gitlab CI for testing [03/03]
 - Implement the main algorithm in C++ [05/03]
 	+ Search for good FFT and Tensor libraries -> FFTW and Eigen
 - Set up the testing framework for the C++ code [05/03]

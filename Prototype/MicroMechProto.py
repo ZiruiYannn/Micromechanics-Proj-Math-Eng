@@ -22,6 +22,7 @@ def strain(E, mat, c, prds, tol):
     tau = np.zeros((dims[0], dims[1], dims[2], 6))
     eps_freq = np.zeros((dims[0], dims[1], dims[2], 6)) # not necessary for FFTW
     tau_freq = np.zeros((dims[0], dims[1], dims[2], 6)) # not necessary for FFTW
+    gam = np.zeros((3, 3, 3, 3))
     c0 = refMat(c)
     e = np.inf
     
@@ -33,14 +34,15 @@ def strain(E, mat, c, prds, tol):
                     tau[i, j, k, :] = sig - stress(stress(eps[i, j, k, :], c0[0], c0[1]))
         
         e = error(sig, dims, prds)
-        tau_freq = FFT(tau) # FFTW does this in-place
+        tau_freq = np.fft.fftn(tau, axes=(0, 1, 2)) # FFTW does this in-place
         
         for i in range(dims[0]):
             for j in range(dims[1]):
                 for k in range(dims[2]):
-                    eps_freq = np.tensordot(-greenOp(c0[0], c0[1], [i, j, k], dims, prds), vec2ten(tau_freq[i, j, k, :]))             
+                    gam = greenOp(c0[0], c0[1], [i, j, k], dims, prds)
+                    eps_freq = np.tensordot(-gam, vec2ten(tau_freq[i, j, k, :])) # FFT conserves symmetry            
         eps_freq[0, 0, 0, :] = E
-        eps = IFFT(eps_freq) # FFTW does this in-place
+        eps = np.fft.ifftn(eps_freq, axes=(0, 1, 2)) # FFTW does this in-place
                         
     return eps
 
@@ -68,32 +70,16 @@ def stress(strain, lambd, mu):
 
 # Determine the error
 def error(sig, dims, prds):
-    sig_freq = FFT(sig)  # FFTW does this in-place
+    sig_freq = np.fft.fftn(sig, axes=(0, 1, 2))  # FFTW does this in-place
     e = 0
     for i in range(dims[0]):
         for j in range(dims[1]):
             for k in range(dims[2]):
                 xi = waveVec([i, j, k], dims, prds)
-                e += np.linalg.norm(np.matmul(vec2ten(sig_freq[i, j, k, :]), xi))**2
+                e += np.linalg.norm(np.matmul(vec2ten(sig_freq[i, j, k, :]), xi))**2 # FFT conserves symmetry
     e /= dims[0]*dims[1]*dims[2]
     e = np.sqrt(e)
     e /= np.linalg.norm(vec2ten(sig_freq[i, j, k, :]))**2
-    
-    return
-
-
-
-# Determine Fourier transform
-def FFT(real):
-    # TODO: implement this
-    
-    return
-
-
-
-# Determine inverse Fourier transform
-def IFFT(freq):
-    # TODO: implement this
     
     return
 

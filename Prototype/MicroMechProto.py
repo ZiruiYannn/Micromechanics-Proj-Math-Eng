@@ -35,7 +35,7 @@ def strain(E, mat, c, prds, tol):
         
         e = error(sig, dims, prds)
         tau_freq = np.fft.fftn(tau, axes=(0, 1, 2)) # FFTW does this in-place
-        
+        # TODO: change (i)fftn by (i)rfftn and take into account reduces size of last axes dimension
         for i in range(dims[0]):
             for j in range(dims[1]):
                 for k in range(dims[2]):
@@ -64,12 +64,13 @@ def stress(strain, lambd, mu):
     I = np.zeros(6)
     I[1:3] = 1
     
-    return 2*mu*strain + lambd*sum(strain[1:3])*I
+    return 2*mu*strain + lambd*sum(strain[0:2])*I
 
 
 
 # Determine the error
 def error(sig, dims, prds):
+    # TODO: change fftn by rfftn and take into account reduces size of last axes dimension
     sig_freq = np.fft.fftn(sig, axes=(0, 1, 2))  # FFTW does this in-place
     e = 0
     for i in range(dims[0]):
@@ -87,7 +88,7 @@ def error(sig, dims, prds):
 
 # Determine the 2nd-order tensor equivalent for a given vector
 def vec2ten(v):
-    T = np.diag(v[1:3])
+    T = np.diag(v[0:2])
     T[2, 3] = T[3, 2] = v[4]
     T[1, 3] = T[3, 1] = v[5]
     T[1, 2] = T[2, 1] = v[6]
@@ -99,7 +100,7 @@ def vec2ten(v):
 # Determine the vector equivalent for a given 2nd-order tensor
 def ten2vec(T):
     v = np.zeros(6)
-    v[1:3] = np.diag(T)
+    v[0:2] = np.diag(T)
     v[4] = T[2, 3]
     v[5] = T[1, 3]
     v[6] = T[1, 2]
@@ -144,6 +145,32 @@ def waveVec(inds, dims, prds):
 
 
 
+
+
+def main():
+    # coefficients for steel
+    nu = 0.28 # Poisson ratio
+    mod = 210 # Elasticity modulus
+    lambd = mod*nu / ((1+nu)*(1-2*nu))
+    mu = mod / (2*(1+nu))
+    
+    E0 = 0.01
+    E = np.array([E0, -nu*E0, -nu*E0, 0.0, 0.0, 0.0]) 
+    mat = np.zeros(5, 5, 5)
+    c = np.array([[lambd, mu]]) 
+    prds = np.array([5, 5, 5]) 
+    tol = 1e-4
+    
+    eps = strain(E, mat, c, prds, tol) # sig = E0*mod
+    print(eps)
+    
+    return
+
+
+
+
+
+main()
 
 
 

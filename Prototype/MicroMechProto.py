@@ -12,6 +12,8 @@ import numpy as np
 # Basic scheme
 def strain(E, mat, c, prds, tol):
     dims = np.shape(mat)
+    dims_freq = dims
+    dims_freq[2] = dims_freq[2]//2 + 1 # (i)rfftn reduces the last transformation axis
     
     eps = np.zeros((dims[0], dims[1], dims[2], 6))
     for i in range(dims[0]):
@@ -20,8 +22,8 @@ def strain(E, mat, c, prds, tol):
                 eps[i, j, k, :, :] = E
     sig = np.zeros((dims[0], dims[1], dims[2], 6))
     tau = np.zeros((dims[0], dims[1], dims[2], 6))
-    eps_freq = np.zeros((dims[0], dims[1], dims[2], 6)) # not necessary for FFTW
-    tau_freq = np.zeros((dims[0], dims[1], dims[2], 6)) # not necessary for FFTW
+    eps_freq = np.zeros((dims_freq[0], dims_freq[1], dims_freq[2], 6)) # not necessary for FFTW
+    tau_freq = np.zeros((dims_freq[0], dims_freq[1], dims_freq[2], 6)) # not necessary for FFTW
     gam = np.zeros((3, 3, 3, 3))
     c0 = refMat(c)
     e = np.inf
@@ -33,16 +35,16 @@ def strain(E, mat, c, prds, tol):
                     sig[i, j, k, :] = stress(eps[i, j, k, :], c[mat[i, j, k], 0], c[mat[i, j, k], 1])
                     tau[i, j, k, :] = sig - stress(stress(eps[i, j, k, :], c0[0], c0[1]))
         
-        e = error(sig, dims, prds)
-        tau_freq = np.fft.fftn(tau, axes=(0, 1, 2)) # FFTW does this in-place
-        # TODO: change (i)fftn by (i)rfftn and take into account reduces size of last axes dimension
-        for i in range(dims[0]):
-            for j in range(dims[1]):
-                for k in range(dims[2]):
-                    gam = greenOp(c0[0], c0[1], [i, j, k], dims, prds)
-                    eps_freq = np.tensordot(-gam, vec2ten(tau_freq[i, j, k, :])) # FFT conserves symmetry            
+        e = error(sig, dims_freq, prds)
+        tau_freq = np.fft.rfftn(tau, axes=(0, 1, 2)) # FFTW does this in-place
+        
+        for i in range(dims_freq[0]):
+            for j in range(dims_freq[1]):
+                for k in range(dims_freq[2]):
+                    gam = greenOp(c0[0], c0[1], [i, j, k], dims_freq, prds)
+                    eps_freq = ten2vec(np.tensordot(-gam, vec2ten(tau_freq[i, j, k, :]))) # FFT conserves symmetry            
         eps_freq[0, 0, 0, :] = E
-        eps = np.fft.ifftn(eps_freq, axes=(0, 1, 2)) # FFTW does this in-place
+        eps = np.fft.irfftn(eps_freq, s=dims, axes=(0, 1, 2)) # FFTW does this in-place
                         
     return eps
 
@@ -69,16 +71,15 @@ def stress(strain, lambd, mu):
 
 
 # Determine the error
-def error(sig, dims, prds):
-    # TODO: change fftn by rfftn and take into account reduces size of last axes dimension
-    sig_freq = np.fft.fftn(sig, axes=(0, 1, 2))  # FFTW does this in-place
+def error(sig, dims_freq, prds):
+    sig_freq = np.fft.rfftn(sig, axes=(0, 1, 2))  # FFTW does this in-place
     e = 0
-    for i in range(dims[0]):
-        for j in range(dims[1]):
-            for k in range(dims[2]):
-                xi = waveVec([i, j, k], dims, prds)
+    for i in range(dims_freq[0]):
+        for j in range(dims_freq[1]):
+            for k in range(dims_freq[2]):
+                xi = waveVec([i, j, k], dims_freq, prds)
                 e += np.linalg.norm(np.matmul(vec2ten(sig_freq[i, j, k, :]), xi))**2 # FFT conserves symmetry
-    e /= dims[0]*dims[1]*dims[2]
+    e /= dims_freq[0]*dims_freq[1]*dims_freq[2]
     e = np.sqrt(e)
     e /= np.linalg.norm(vec2ten(sig_freq[i, j, k, :]))**2
     

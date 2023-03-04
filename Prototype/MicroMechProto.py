@@ -12,14 +12,14 @@ import numpy as np
 # Basic scheme
 def strain(E, mat, c, prds, tol):
     dims = np.shape(mat)
-    dims_freq = dims
+    dims_freq = np.array(dims)
     dims_freq[2] = dims_freq[2]//2 + 1 # (i)rfftn reduces the last transformation axis
     
     eps = np.zeros((dims[0], dims[1], dims[2], 6))
     for i in range(dims[0]):
         for j in range(dims[1]):
             for k in range(dims[2]):
-                eps[i, j, k, :, :] = E
+                eps[i, j, k, :] = E
     sig = np.zeros((dims[0], dims[1], dims[2], 6))
     tau = np.zeros((dims[0], dims[1], dims[2], 6))
     eps_freq = np.zeros((dims_freq[0], dims_freq[1], dims_freq[2], 6)) # not necessary for FFTW
@@ -33,7 +33,7 @@ def strain(E, mat, c, prds, tol):
             for j in range(dims[1]):
                 for k in range(dims[2]):
                     sig[i, j, k, :] = stress(eps[i, j, k, :], c[mat[i, j, k], 0], c[mat[i, j, k], 1])
-                    tau[i, j, k, :] = sig - stress(stress(eps[i, j, k, :], c0[0], c0[1]))
+                    tau[i, j, k, :] = sig[i, j, k, :] - stress(eps[i, j, k, :], c0[0], c0[1])
         
         e = error(sig, dims_freq, prds)
         tau_freq = np.fft.rfftn(tau, axes=(0, 1, 2)) # FFTW does this in-place
@@ -42,7 +42,7 @@ def strain(E, mat, c, prds, tol):
             for j in range(dims_freq[1]):
                 for k in range(dims_freq[2]):
                     gam = greenOp(c0[0], c0[1], [i, j, k], dims_freq, prds)
-                    eps_freq = ten2vec(np.tensordot(-gam, vec2ten(tau_freq[i, j, k, :]))) # FFT conserves symmetry            
+                    eps_freq[i, j, k, :] = ten2vec(np.tensordot(-gam, vec2ten(tau_freq[i, j, k, :]))) # FFT conserves symmetry            
         eps_freq[0, 0, 0, :] = E
         eps = np.fft.irfftn(eps_freq, s=dims, axes=(0, 1, 2)) # FFTW does this in-place
                         
@@ -52,7 +52,7 @@ def strain(E, mat, c, prds, tol):
 
 # Determine reference material and corresponding Lamé coefficients
 def refMat(c):
-    c0 = np.zeros((1, 2))
+    c0 = np.zeros(2)
     c0[0] = (max(c[:, 0]) + min(c[:, 0])) / 2
     c0[1] = (max(c[:, 1]) + min(c[:, 1])) / 2
     
@@ -66,7 +66,7 @@ def stress(strain, lambd, mu):
     I = np.zeros(6)
     I[1:3] = 1
     
-    return 2*mu*strain + lambd*sum(strain[0:2])*I
+    return 2*mu*strain + lambd*sum(strain[0:3])*I
 
 
 
@@ -81,18 +81,18 @@ def error(sig, dims_freq, prds):
                 e += np.linalg.norm(np.matmul(vec2ten(sig_freq[i, j, k, :]), xi))**2 # FFT conserves symmetry
     e /= dims_freq[0]*dims_freq[1]*dims_freq[2]
     e = np.sqrt(e)
-    e /= np.linalg.norm(vec2ten(sig_freq[i, j, k, :]))**2
+    e /= np.linalg.norm(vec2ten(sig_freq[0, 0, 0, :]))**2
     
-    return
+    return e
 
 
 
 # Determine the 2nd-order tensor equivalent for a given vector
 def vec2ten(v):
-    T = np.diag(v[0:2])
-    T[2, 3] = T[3, 2] = v[4]
-    T[1, 3] = T[3, 1] = v[5]
-    T[1, 2] = T[2, 1] = v[6]
+    T = np.diag(v[0:3])
+    T[1, 2] = T[2, 1] = v[3]
+    T[0, 2] = T[2, 0] = v[4]
+    T[0, 1] = T[1, 0] = v[5]
     
     return T
 
@@ -101,10 +101,10 @@ def vec2ten(v):
 # Determine the vector equivalent for a given 2nd-order tensor
 def ten2vec(T):
     v = np.zeros(6)
-    v[0:2] = np.diag(T)
-    v[4] = T[2, 3]
-    v[5] = T[1, 3]
-    v[6] = T[1, 2]
+    v[0:3] = np.diag(T)
+    v[3] = T[1, 2]
+    v[4] = T[0, 2]
+    v[5] = T[0, 1]
     
     return v
 
@@ -157,7 +157,7 @@ def main():
     
     E0 = 0.01
     E = np.array([E0, -nu*E0, -nu*E0, 0.0, 0.0, 0.0]) 
-    mat = np.zeros(5, 5, 5)
+    mat = np.zeros((5, 5, 5), dtype=int)
     c = np.array([[lambd, mu]]) 
     prds = np.array([5, 5, 5]) 
     tol = 1e-4

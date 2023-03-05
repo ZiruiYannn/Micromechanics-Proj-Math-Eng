@@ -13,7 +13,7 @@ import numpy as np
 def strain(E, mat, c, prds, tol):
     dims = np.shape(mat)
     dims_freq = np.array(dims)
-    dims_freq[2] = dims_freq[2]//2 + 1 # (i)rfftn reduces the last transformation axis
+    dims_freq[2] = dims_freq[2]//2 + 1 # rfftn reduces the last transformation axis dimension
     
     eps = np.zeros((dims[0], dims[1], dims[2], 6))
     for i in range(dims[0]):
@@ -24,6 +24,7 @@ def strain(E, mat, c, prds, tol):
     tau = np.zeros((dims[0], dims[1], dims[2], 6))
     eps_freq = np.zeros((dims_freq[0], dims_freq[1], dims_freq[2], 6), dtype=complex) # not necessary for FFTW
     tau_freq = np.zeros((dims_freq[0], dims_freq[1], dims_freq[2], 6), dtype=complex) # not necessary for FFTW
+    xi = np.zeros(3)
     gam = np.zeros((3, 3, 3, 3))
     c0 = refMat(c)
     e = np.inf

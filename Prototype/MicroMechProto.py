@@ -22,8 +22,8 @@ def strain(E, mat, c, prds, tol):
                 eps[i, j, k, :] = E
     sig = np.zeros((dims[0], dims[1], dims[2], 6))
     tau = np.zeros((dims[0], dims[1], dims[2], 6))
-    eps_freq = np.zeros((dims_freq[0], dims_freq[1], dims_freq[2], 6)) # not necessary for FFTW
-    tau_freq = np.zeros((dims_freq[0], dims_freq[1], dims_freq[2], 6)) # not necessary for FFTW
+    eps_freq = np.zeros((dims_freq[0], dims_freq[1], dims_freq[2], 6), dtype=complex) # not necessary for FFTW
+    tau_freq = np.zeros((dims_freq[0], dims_freq[1], dims_freq[2], 6), dtype=complex) # not necessary for FFTW
     gam = np.zeros((3, 3, 3, 3))
     c0 = refMat(c)
     e = np.inf
@@ -41,9 +41,12 @@ def strain(E, mat, c, prds, tol):
         for i in range(dims_freq[0]):
             for j in range(dims_freq[1]):
                 for k in range(dims_freq[2]):
-                    gam = greenOp(c0[0], c0[1], [i, j, k], dims_freq, prds)
-                    eps_freq[i, j, k, :] = ten2vec(np.tensordot(-gam, vec2ten(tau_freq[i, j, k, :]))) # FFT conserves symmetry            
-        eps_freq[0, 0, 0, :] = E
+                    xi = waveVec([i, j, k], dims_freq, prds)
+                    if np.array_equal(xi, [0.0, 0.0, 0.0]):
+                        eps_freq[i, j, k, :] = E
+                    else:
+                        gam = greenOp(c0[0], c0[1], xi)
+                        eps_freq[i, j, k, :] = ten2vec(np.tensordot(-gam, vec2ten(tau_freq[i, j, k, :]))) # FFT conserves symmetry            
         eps = np.fft.irfftn(eps_freq, s=dims, axes=(0, 1, 2)) # FFTW does this in-place
                         
     return eps
@@ -87,32 +90,21 @@ def error(sig, dims_freq, prds):
 
 
 
-# Determine the 2nd-order tensor equivalent for a given vector
-def vec2ten(v):
-    T = np.diag(v[0:3])
-    T[1, 2] = T[2, 1] = v[3]
-    T[0, 2] = T[2, 0] = v[4]
-    T[0, 1] = T[1, 0] = v[5]
-    
-    return T
-
-
-
-# Determine the vector equivalent for a given 2nd-order tensor
-def ten2vec(T):
-    v = np.zeros(6)
-    v[0:3] = np.diag(T)
-    v[3] = T[1, 2]
-    v[4] = T[0, 2]
-    v[5] = T[0, 1]
-    
-    return v
+# Determine the wave vector
+def waveVec(inds, dims, prds):
+    xi = np.zeros(3)
+    for i in range(3):
+        if dims[i]%2 == 0:
+            xi[i] = (-dims[i]/2 + inds[i]+1) / prds[i]
+        else:
+            xi[i] = (-(dims[i]-1)/2 + inds[i]) / prds[i]
+            
+    return xi
 
 
 
 # Determine the Greenoperator
-def greenOp(lambd0, mu0, inds, dims, prds):
-    xi = waveVec(inds, dims, prds)
+def greenOp(lambd0, mu0, xi):
     gam = np.zeros((3,3,3,3))
     for k in range(3):
         for h in range(3):
@@ -133,16 +125,26 @@ def greenOp(lambd0, mu0, inds, dims, prds):
 
 
 
-# Determine the wave vector
-def waveVec(inds, dims, prds):
-    xi = np.zeros(3)
-    for i in range(3):
-        if dims[i]%2 == 0:
-            xi[i] = (-dims[i]/2 + inds[i]+1) / prds[i]
-        else:
-            xi[i] = (-(dims[i]-1)/2 + inds[i]) / prds[i]
-            
-    return xi
+# Determine the 2nd-order tensor equivalent for a given vector
+def vec2ten(v):
+    T = np.diag(v[0:3])
+    T[1, 2] = T[2, 1] = v[3]
+    T[0, 2] = T[2, 0] = v[4]
+    T[0, 1] = T[1, 0] = v[5]
+    
+    return T
+
+
+
+# Determine the vector equivalent for a given 2nd-order tensor
+def ten2vec(T):
+    v = np.zeros(6, dtype=T.dtype)
+    v[0:3] = np.diag(T)
+    v[3] = T[1, 2]
+    v[4] = T[0, 2]
+    v[5] = T[0, 1]
+    
+    return v
 
 
 

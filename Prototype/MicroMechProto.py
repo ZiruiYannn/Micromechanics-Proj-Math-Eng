@@ -38,6 +38,7 @@ def strain(E, mat, c, prds, tol=1e-4, maxit=50):
                     tau[i, j, k, :] = sig[i, j, k, :] - stress(eps[i, j, k, :], c0[0], c0[1])
         
         e = error(sig, dims_freq, prds)
+        print(e)
         tau_freq = np.fft.rfftn(tau, axes=(0, 1, 2)) # FFTW does this in-place
         
         for i in range(dims_freq[0]):
@@ -166,21 +167,51 @@ def ten2vec(T):
 def main():
     # coefficients for steel
     nu = 0.28 # Poisson ratio
-    mod = 210e9 # Elasticity modulus
-    lambd = mod*nu / ((1+nu)*(1-2*nu))
-    mu = mod / (2*(1+nu))
+    mod1 = 210e9 # Elasticity modulus
+    lambd1 = mod1*nu / ((1+nu)*(1-2*nu))
+    mu1 = mod1 / (2*(1+nu))
+    
+    # altered coefficients 2
+    mod2 = 0.4*mod1
+    lambd2 = mod2*nu / ((1+nu)*(1-2*nu))
+    mu2 = mod2 / (2*(1+nu))
+    
+    # altered coefficients 3
+    mod3 = 0.6*mod1
+    lambd3 = mod3*nu / ((1+nu)*(1-2*nu))
+    mu3 = mod3 / (2*(1+nu))
     
     E0 = 0.01
-    E = np.array([E0, -nu*E0, -nu*E0, 0.0, 0.0, 0.0]) 
-    mat = np.zeros((5, 5, 5), dtype=int)
-    c = np.array([[lambd, mu]]) 
-    prds = np.array([5, 5, 5]) 
+    E = np.array([-nu*E0, -nu*E0, E0, 0.0, 0.0, 0.0]) 
+    mat = np.zeros((10, 10, 60), dtype=int)
+    for i in range(20, 40):
+        mat[:, :, i] = 1
+    for i in range(40, 60):
+        mat[:, :, i] = 2
+    c = np.array([[lambd1, mu1], [lambd2, mu2], [lambd3, mu3]]) 
+    prds = np.array([10, 10, 50]) 
     
-    eps, sig, e = strain(E, mat, c, prds) # sig = E0*mod
-    sig_exp = stress(E, lambd, mu)
+    eps, sig, e = strain(E, mat, c, prds, -np.inf, 30) 
+
+    # # equivalent coefficients
+    # mod_eq = mod1*mod2 / (mod1+mod2)
+    # lambd_eq = mod_eq*nu / ((1+nu)*(1-2*nu))
+    # mu_eq = mod_eq / (2*(1+nu))
+
+    # mat_eq = np.zeros((3, 3, 10), dtype=int)
+    # c_eq = np.array([[lambd_eq, mu_eq]]) 
     
-    print(sig[0, 0, 0, :])
-    print(sig_exp)
+    # eps_eq, sig_eq, e_eq = strain(E, mat_eq, c_eq, prds)
+    
+    # avg1 = np.average(sig[:, :, 0:20, 0])
+    # avg2 = np.average(sig[:, :, 20:40, 0])
+    # avg3 = np.average(sig[:, :, 40:, 0])
+    # print(avg3/avg1)
+    
+    avg1 = np.average(eps[:, :, 0:20, 2])
+    avg2 = np.average(eps[:, :, 20:40, 2])
+    avg3 = np.average(eps[:, :, 40:, 2])
+    print(avg1/avg2)
     
     return
 

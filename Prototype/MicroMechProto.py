@@ -12,7 +12,6 @@ import numpy as np
 # Basic scheme
 def strain(E, mat, c, prds, tol=1e-4, maxit=50):
     dims = np.shape(mat)
-    # TODO: check if it is sufficient to loop over only these dimensions
     dims_freq = np.array(dims)
     dims_freq[2] = dims_freq[2]//2 + 1 # rfftn reduces the last transformation axis dimension
     
@@ -46,15 +45,19 @@ def strain(E, mat, c, prds, tol=1e-4, maxit=50):
                 for k in range(dims_freq[2]):
                     xi = waveVec([i, j, k], dims_freq, prds)
                     if np.array_equal(xi, [0.0, 0.0, 0.0]):
-                        # TODO: check scaling
-                        eps_freq[i, j, k, :] = E
+                        eps_freq[i, j, k, :] = dims[0]*dims[1]*dims[2]*E
                     else:
                         gam = greenOp(c0[0], c0[1], xi)
                         eps_freq[i, j, k, :] = ten2vec(np.tensordot(-gam, vec2ten(tau_freq[i, j, k, :]))) # FFT conserves symmetry            
         eps = np.fft.irfftn(eps_freq, s=dims, axes=(0, 1, 2)) # FFTW does this in-place
         it += 1
+        
+    for i in range(dims[0]):
+        for j in range(dims[1]):
+            for k in range(dims[2]):
+                sig[i, j, k, :] = stress(eps[i, j, k, :], c[mat[i, j, k], 0], c[mat[i, j, k], 1])
                         
-    return eps
+    return eps, sig, e
 
 
 
@@ -96,7 +99,6 @@ def error(sig, dims_freq, prds):
 
 
 # Determine the wave vector
-# TODO: check if bounds match
 def waveVec(inds, dims, prds):
     xi = np.zeros(3)
     for i in range(3):
@@ -164,7 +166,7 @@ def ten2vec(T):
 def main():
     # coefficients for steel
     nu = 0.28 # Poisson ratio
-    mod = 210 # Elasticity modulus
+    mod = 210e9 # Elasticity modulus
     lambd = mod*nu / ((1+nu)*(1-2*nu))
     mu = mod / (2*(1+nu))
     
@@ -174,8 +176,11 @@ def main():
     c = np.array([[lambd, mu]]) 
     prds = np.array([5, 5, 5]) 
     
-    eps = strain(E, mat, c, prds) # sig = E0*mod
-    print(eps)
+    eps, sig, e = strain(E, mat, c, prds) # sig = E0*mod
+    sig_exp = stress(E, lambd, mu)
+    
+    print(sig[0, 0, 0, :])
+    print(sig_exp)
     
     return
 

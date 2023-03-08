@@ -10,8 +10,9 @@ import numpy as np
 
 
 # Basic scheme
-def strain(E, mat, c, prds, tol):
+def strain(E, mat, c, prds, tol=1e-4, maxit=50):
     dims = np.shape(mat)
+    # TODO: check if it is sufficient to loop over only these dimensions
     dims_freq = np.array(dims)
     dims_freq[2] = dims_freq[2]//2 + 1 # rfftn reduces the last transformation axis dimension
     
@@ -29,7 +30,8 @@ def strain(E, mat, c, prds, tol):
     c0 = refMat(c)
     e = np.inf
     
-    while e > tol:
+    it = 0
+    while e > tol and it < maxit:
         for i in range(dims[0]):
             for j in range(dims[1]):
                 for k in range(dims[2]):
@@ -44,11 +46,13 @@ def strain(E, mat, c, prds, tol):
                 for k in range(dims_freq[2]):
                     xi = waveVec([i, j, k], dims_freq, prds)
                     if np.array_equal(xi, [0.0, 0.0, 0.0]):
+                        # TODO: check scaling
                         eps_freq[i, j, k, :] = E
                     else:
                         gam = greenOp(c0[0], c0[1], xi)
                         eps_freq[i, j, k, :] = ten2vec(np.tensordot(-gam, vec2ten(tau_freq[i, j, k, :]))) # FFT conserves symmetry            
         eps = np.fft.irfftn(eps_freq, s=dims, axes=(0, 1, 2)) # FFTW does this in-place
+        it += 1
                         
     return eps
 
@@ -68,7 +72,7 @@ def refMat(c):
 # in 2nd-order tensor notation: sig = 2*mu*eps + lambda*trace(eps)*I_3
 def stress(strain, lambd, mu):
     I = np.zeros(6)
-    I[1:3] = 1
+    I[0:3] = 1
     
     return 2*mu*strain + lambd*sum(strain[0:3])*I
 
@@ -92,13 +96,19 @@ def error(sig, dims_freq, prds):
 
 
 # Determine the wave vector
+# TODO: check if bounds match
 def waveVec(inds, dims, prds):
     xi = np.zeros(3)
     for i in range(3):
         if dims[i]%2 == 0:
-            xi[i] = (-dims[i]/2 + inds[i]+1) / prds[i]
+            bound = dims[i]//2-1
         else:
-            xi[i] = (-(dims[i]-1)/2 + inds[i]) / prds[i]
+            bound = dims[i]//2
+            
+        if inds[i] <= bound:
+            xi[i] = inds[i] / prds[i]
+        else:
+            xi[i] = (-dims[i] + inds[i]) / prds[i]
             
     return xi
 
@@ -163,9 +173,8 @@ def main():
     mat = np.zeros((5, 5, 5), dtype=int)
     c = np.array([[lambd, mu]]) 
     prds = np.array([5, 5, 5]) 
-    tol = 1e-4
     
-    eps = strain(E, mat, c, prds, tol) # sig = E0*mod
+    eps = strain(E, mat, c, prds) # sig = E0*mod
     print(eps)
     
     return

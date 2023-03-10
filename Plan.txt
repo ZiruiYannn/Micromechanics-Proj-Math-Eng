@@ -12,5 +12,5 @@
 - Write elementary tests for the input functionality [12/03]
 - Elaborate basic tests for main algorithm by supplying inputs by file [19/03]
 - Implement output visualization functionality [24/03]
-	+ Search good visalization libraries -> (PyVTK?)
+	+ Search good visalization libraries -> (PyVTK?, Matplot++?)
 

@@ -1,0 +1,16 @@
+{
+	"sources" : 
+	[
+		{
+			"file" : "C:/Users/andre/Documents/Unief/Master 2/Project/Repo/Lib/eigen-3.4.0/test/nomalloc.cpp"
+		}
+	],
+	"target" : 
+	{
+		"labels" : 
+		[
+			"BuildOfficial"
+		],
+		"name" : "nomalloc_2"
+	}
+}

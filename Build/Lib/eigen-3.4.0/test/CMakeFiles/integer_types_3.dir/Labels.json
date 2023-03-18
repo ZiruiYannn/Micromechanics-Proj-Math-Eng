@@ -1,0 +1,16 @@
+{
+	"sources" : 
+	[
+		{
+			"file" : "C:/Users/andre/Documents/Unief/Master 2/Project/Repo/Lib/eigen-3.4.0/test/integer_types.cpp"
+		}
+	],
+	"target" : 
+	{
+		"labels" : 
+		[
+			"BuildOfficial"
+		],
+		"name" : "integer_types_3"
+	}
+}

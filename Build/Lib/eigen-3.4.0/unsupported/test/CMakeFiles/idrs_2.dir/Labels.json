@@ -1,0 +1,16 @@
+{
+	"sources" : 
+	[
+		{
+			"file" : "C:/Users/andre/Documents/Unief/Master 2/Project/Repo/Lib/eigen-3.4.0/unsupported/test/idrs.cpp"
+		}
+	],
+	"target" : 
+	{
+		"labels" : 
+		[
+			"BuildUnsupported"
+		],
+		"name" : "idrs_2"
+	}
+}

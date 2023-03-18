@@ -1,0 +1,5 @@
+if(EXISTS "C:/Users/andre/Documents/Unief/Master 2/Project/Repo/Build/IOTest[1]_tests.cmake")
+  include("C:/Users/andre/Documents/Unief/Master 2/Project/Repo/Build/IOTest[1]_tests.cmake")
+else()
+  add_test(IOTest_NOT_BUILT IOTest_NOT_BUILT)
+endif()

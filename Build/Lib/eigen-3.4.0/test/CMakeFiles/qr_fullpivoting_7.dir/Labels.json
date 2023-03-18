@@ -1,0 +1,16 @@
+{
+	"sources" : 
+	[
+		{
+			"file" : "C:/Users/andre/Documents/Unief/Master 2/Project/Repo/Lib/eigen-3.4.0/test/qr_fullpivoting.cpp"
+		}
+	],
+	"target" : 
+	{
+		"labels" : 
+		[
+			"BuildOfficial"
+		],
+		"name" : "qr_fullpivoting_7"
+	}
+}

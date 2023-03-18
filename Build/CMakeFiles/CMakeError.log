@@ -1,0 +1,60 @@
+Performing C++ SOURCE FILE Test COMPILER_SUPPORT_Wshorten64to32 failed with the following output:
+Change Dir: C:/Users/andre/Documents/Unief/Master 2/Project/Repo/Build/CMakeFiles/CMakeTmp
+
+Run Build Command(s):C:/msys64/mingw64/bin/ninja.exe cmTC_f1267 && [1/2] Building CXX object CMakeFiles/cmTC_f1267.dir/src.cxx.obj
+FAILED: CMakeFiles/cmTC_f1267.dir/src.cxx.obj 
+C:\msys64\mingw64\bin\c++.exe -DCOMPILER_SUPPORT_Wshorten64to32  -std=c++03 -pedantic -Wall -Wextra -Wundef -Wcast-align -Wchar-subscripts -Wnon-virtual-dtor -Wunused-local-typedefs -Wpointer-arith -Wwrite-strings -Wformat-security -Werror   -Wshorten-64-to-32 -o CMakeFiles/cmTC_f1267.dir/src.cxx.obj -c "C:/Users/andre/Documents/Unief/Master 2/Project/Repo/Build/CMakeFiles/CMakeTmp/src.cxx"
+c++.exe: error: unrecognized command-line option '-Wshorten-64-to-32'
+ninja: build stopped: subcommand failed.
+
+
+Source file was:
+int main() { return 0; }
+Performing C++ SOURCE FILE Test COMPILER_SUPPORT_wd981 failed with the following output:
+Change Dir: C:/Users/andre/Documents/Unief/Master 2/Project/Repo/Build/CMakeFiles/CMakeTmp
+
+Run Build Command(s):C:/msys64/mingw64/bin/ninja.exe cmTC_25167 && [1/2] Building CXX object CMakeFiles/cmTC_25167.dir/src.cxx.obj
+FAILED: CMakeFiles/cmTC_25167.dir/src.cxx.obj 
+C:\msys64\mingw64\bin\c++.exe -DCOMPILER_SUPPORT_wd981  -std=c++03 -pedantic -Wall -Wextra -Wundef -Wcast-align -Wchar-subscripts -Wnon-virtual-dtor -Wunused-local-typedefs -Wpointer-arith -Wwrite-strings -Wformat-security -Wlogical-op -Wenum-conversion -Wc++11-extensions -Wdouble-promotion -Wshadow -Wno-psabi -Wno-variadic-macros -Wno-long-long -fno-check-new -fno-common -fstrict-aliasing -Werror   -wd981 -o CMakeFiles/cmTC_25167.dir/src.cxx.obj -c "C:/Users/andre/Documents/Unief/Master 2/Project/Repo/Build/CMakeFiles/CMakeTmp/src.cxx"
+c++.exe: error: unrecognized command-line option '-wd981'
+ninja: build stopped: subcommand failed.
+
+
+Source file was:
+int main() { return 0; }
+Performing C++ SOURCE FILE Test COMPILER_SUPPORT_wd2304 failed with the following output:
+Change Dir: C:/Users/andre/Documents/Unief/Master 2/Project/Repo/Build/CMakeFiles/CMakeTmp
+
+Run Build Command(s):C:/msys64/mingw64/bin/ninja.exe cmTC_e360b && [1/2] Building CXX object CMakeFiles/cmTC_e360b.dir/src.cxx.obj
+FAILED: CMakeFiles/cmTC_e360b.dir/src.cxx.obj 
+C:\msys64\mingw64\bin\c++.exe -DCOMPILER_SUPPORT_wd2304  -std=c++03 -pedantic -Wall -Wextra -Wundef -Wcast-align -Wchar-subscripts -Wnon-virtual-dtor -Wunused-local-typedefs -Wpointer-arith -Wwrite-strings -Wformat-security -Wlogical-op -Wenum-conversion -Wc++11-extensions -Wdouble-promotion -Wshadow -Wno-psabi -Wno-variadic-macros -Wno-long-long -fno-check-new -fno-common -fstrict-aliasing -Werror   -wd2304 -o CMakeFiles/cmTC_e360b.dir/src.cxx.obj -c "C:/Users/andre/Documents/Unief/Master 2/Project/Repo/Build/CMakeFiles/CMakeTmp/src.cxx"
+c++.exe: error: unrecognized command-line option '-wd2304'
+ninja: build stopped: subcommand failed.
+
+
+Source file was:
+int main() { return 0; }
+Performing C++ SOURCE FILE Test COMPILER_SUPPORT_STRICTANSI failed with the following output:
+Change Dir: C:/Users/andre/Documents/Unief/Master 2/Project/Repo/Build/CMakeFiles/CMakeTmp
+
+Run Build Command(s):C:/msys64/mingw64/bin/ninja.exe cmTC_35c74 && [1/2] Building CXX object CMakeFiles/cmTC_35c74.dir/src.cxx.obj
+FAILED: CMakeFiles/cmTC_35c74.dir/src.cxx.obj 
+C:\msys64\mingw64\bin\c++.exe -DCOMPILER_SUPPORT_STRICTANSI  -std=c++03 -pedantic -Wall -Wextra -Wundef -Wcast-align -Wchar-subscripts -Wnon-virtual-dtor -Wunused-local-typedefs -Wpointer-arith -Wwrite-strings -Wformat-security -Wlogical-op -Wenum-conversion -Wc++11-extensions -Wdouble-promotion -Wshadow -Wno-psabi -Wno-variadic-macros -Wno-long-long -fno-check-new -fno-common -fstrict-aliasing -Werror   -strict-ansi -o CMakeFiles/cmTC_35c74.dir/src.cxx.obj -c "C:/Users/andre/Documents/Unief/Master 2/Project/Repo/Build/CMakeFiles/CMakeTmp/src.cxx"
+c++.exe: error: unrecognized command-line option '-strict-ansi'; did you mean '-fstrict-enums'?
+ninja: build stopped: subcommand failed.
+
+
+Source file was:
+int main() { return 0; }
+Performing C++ SOURCE FILE Test COMPILER_SUPPORT_Qunusedarguments failed with the following output:
+Change Dir: C:/Users/andre/Documents/Unief/Master 2/Project/Repo/Build/CMakeFiles/CMakeTmp
+
+Run Build Command(s):C:/msys64/mingw64/bin/ninja.exe cmTC_b7b4a && [1/2] Building CXX object CMakeFiles/cmTC_b7b4a.dir/src.cxx.obj
+FAILED: CMakeFiles/cmTC_b7b4a.dir/src.cxx.obj 
+C:\msys64\mingw64\bin\c++.exe -DCOMPILER_SUPPORT_Qunusedarguments  -std=c++03 -pedantic -Wall -Wextra -Wundef -Wcast-align -Wchar-subscripts -Wnon-virtual-dtor -Wunused-local-typedefs -Wpointer-arith -Wwrite-strings -Wformat-security -Wlogical-op -Wenum-conversion -Wc++11-extensions -Wdouble-promotion -Wshadow -Wno-psabi -Wno-variadic-macros -Wno-long-long -fno-check-new -fno-common -fstrict-aliasing -Werror   -Qunused-arguments -o CMakeFiles/cmTC_b7b4a.dir/src.cxx.obj -c "C:/Users/andre/Documents/Unief/Master 2/Project/Repo/Build/CMakeFiles/CMakeTmp/src.cxx"
+c++.exe: error: unrecognized command-line option '-Qunused-arguments'
+ninja: build stopped: subcommand failed.
+
+
+Source file was:
+int main() { return 0; }

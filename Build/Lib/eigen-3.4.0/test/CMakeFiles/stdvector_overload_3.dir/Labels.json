@@ -1,0 +1,16 @@
+{
+	"sources" : 
+	[
+		{
+			"file" : "C:/Users/andre/Documents/Unief/Master 2/Project/Repo/Lib/eigen-3.4.0/test/stdvector_overload.cpp"
+		}
+	],
+	"target" : 
+	{
+		"labels" : 
+		[
+			"BuildOfficial"
+		],
+		"name" : "stdvector_overload_3"
+	}
+}

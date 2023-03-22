@@ -9,7 +9,7 @@ TEST(InTest, BasicTest) {
     double lambda = mod*nu / ((1+nu)*(1-2*nu));
     double mu = mod / (2*(1+nu));
 
-    auto [c, mat, prds] = read_material("../input/test.in"); 
+    auto [c, mat, prds] = read_material("input/test.in"); 
     
     // check if dimensions are as expected
     ASSERT_EQ(c.rows(), 1);

@@ -8,18 +8,18 @@ build:
   script:
     - cmake -B Build
     - cmake --build Build
-    - cp -R Input Build/Input
+    - cp -r Input Build/Input
+    - ./Build/IOTest
   artifacts:
     paths:
-      - Build/IOTest 
-      - Build/Input
+      - Build/IOTest
 
-# run tests using the binary built before
-test:
-  stage: test
-  script:
-    - cd Build
-    - ./IOTest # would like to do this using ctest to run all tests with a single command
+# # run tests using the binary built before
+# test:
+#   stage: test
+#   script:
+#     - cd Build
+#     - ./IOTest # would like to do this using ctest to run all tests with a single command
 
 # deploy:
 #   stage: deploy

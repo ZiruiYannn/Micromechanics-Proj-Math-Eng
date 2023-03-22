@@ -8,7 +8,6 @@ build:
   script:
     - cmake -B Build
     - cmake --build Build
-    - cp -r Input Build/Input
     - ./Build/IOTest
   artifacts:
     paths:

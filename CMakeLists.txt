@@ -28,7 +28,7 @@ enable_testing()
 
 add_executable(IOTest Test/IO_test.cpp)
 
-target_link_libraries(IOTest PUBLIC GTest::gtest_main GTest::gtest)
+target_link_libraries(IOTest PUBLIC GTest::gtest_main)
 target_link_libraries(IOTest PUBLIC Eigen3::Eigen)
 target_include_directories(IOTest PRIVATE Src)
 

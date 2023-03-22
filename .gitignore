@@ -4,5 +4,3 @@
 # ignore build files, but keep Build directory
 Build/*
 !Build/.gitkeep
-!Build/Input
-!Build/output

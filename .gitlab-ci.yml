@@ -10,14 +10,14 @@ build:
     - cmake --build Build
   artifacts:
     paths:
-      - Build/IOTest # not quite clear what this does
+      - Build/IOTest 
+      - Input
 
 # run tests using the binary built before
 test:
   stage: test
   script:
-    - cd Build
-    - ./IOTest # would like to do this using ctest to run all tests with a single command
+    - ./Build/IOTest # would like to do this using ctest to run all tests with a single command
 
 # deploy:
 #   stage: deploy

@@ -40,8 +40,8 @@ auto read_material(std::string const & filename) {
     Eigen::Tensor<int, 3> mat(xdim, ydim, zdim);
 
     for (int k = 0; k < zdim; k++) {
-        for (int j = 0; j < zdim; j++) {
-            for (int i = 0; i < zdim; i++) {
+        for (int j = 0; j < ydim; j++) {
+            for (int i = 0; i < xdim; i++) {
                 std::getline(file, line);
                 mat(i, j, k) = std::stoi(line);
             }

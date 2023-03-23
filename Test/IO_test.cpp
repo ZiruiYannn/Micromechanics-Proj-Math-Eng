@@ -12,19 +12,19 @@ class InTest: public ::testing::Test {
         prds = prds_in;
     }
 
-    Eigen::MatrixXd c;
+    Eigen::ArrayXXd c;
     Eigen::Tensor<int, 3> mat;
-    Eigen::VectorXd prds;
+    Eigen::ArrayXd prds;
 };
 
 TEST_F(InTest, Dimensions) {
     ASSERT_EQ(c.rows(), 2);
-    ASSERT_EQ(c.cols(), 2);
+    ASSERT_EQ(c.cols(), 3);
 
     ASSERT_EQ(mat.rank(), 3);
-    for (int i = 0; i < 3; i++){
-        ASSERT_EQ(mat.dimension(i), 2);
-    }
+    ASSERT_EQ(mat.dimension(0), 2);
+    ASSERT_EQ(mat.dimension(1), 2);
+    ASSERT_EQ(mat.dimension(2), 3);
 
     ASSERT_EQ(prds.size(), 3);
 }
@@ -36,10 +36,13 @@ TEST_F(InTest, Contents) {
     double mu = mod / (2*(1+nu)); 
     
     EXPECT_DOUBLE_EQ(c(0, 0), lambda);
-    EXPECT_DOUBLE_EQ(c(0, 1), mu);
+    EXPECT_DOUBLE_EQ(c(1, 0), mu);
 
     EXPECT_EQ(mat(0, 0, 0), 0);
-    EXPECT_EQ(mat(1, 1, 1), 1);
+    EXPECT_EQ(mat(0, 0, 1), 1);
+    EXPECT_EQ(mat(0, 0, 2), 2);
 
-    EXPECT_DOUBLE_EQ(prds(2), 2.0);
+    EXPECT_DOUBLE_EQ(prds(0), 2.0);
+    EXPECT_DOUBLE_EQ(prds(1), 2.0);
+    EXPECT_DOUBLE_EQ(prds(2), 3.0);
 }

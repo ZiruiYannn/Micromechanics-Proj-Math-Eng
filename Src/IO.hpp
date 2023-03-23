@@ -19,15 +19,15 @@ auto read_material(std::string const & filename) {
     std::istringstream split_line(line);
     split_line >> num_mat;
 
-    Eigen::MatrixXd c(num_mat, 2);
+    Eigen::ArrayXXd c(2, num_mat);
 
     for (int i = 0; i < num_mat; i++) {
         std::getline(file, line);
         split_line = std::istringstream(line);
         split_line >> lambda;
         split_line >> mu;
-        c(i, 0) = std::stod(lambda);
-        c(i, 1) = std::stod(mu);
+        c(0, i) = std::stod(lambda);
+        c(1, i) = std::stod(mu);
     }
 
     // read in the dimensions of the cuboid and the material index for every voxel
@@ -49,7 +49,7 @@ auto read_material(std::string const & filename) {
     }
 
     // read in the period for every dimension of the cuboid
-    Eigen::VectorXd prds(3);
+    Eigen::ArrayXd prds(3);
 
     std::getline(file, line);
     split_line = std::istringstream(line);
@@ -62,9 +62,9 @@ auto read_material(std::string const & filename) {
 
     // return all arguments in a custom struct
     struct args {
-        Eigen::MatrixXd c;
+        Eigen::ArrayXXd c;
         Eigen::Tensor<int, 3> mat;
-        Eigen::VectorXd prds;
+        Eigen::ArrayXd prds;
     };
 
     return args{c, mat, prds};

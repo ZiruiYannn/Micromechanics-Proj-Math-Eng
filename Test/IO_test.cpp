@@ -1,18 +1,24 @@
 #include "gtest/gtest.h"
 #include "Eigen/Dense"
 #include "unsupported/Eigen/CXX11/Tensor"
-#include "read_material.hpp"
+#include "IO.hpp"
 
-TEST(InTest, BasicTest) {
-    double nu = 0.28;
-    double mod = 210e9;
-    double lambda = mod*nu / ((1+nu)*(1-2*nu));
-    double mu = mod / (2*(1+nu));
+class InTest: public ::testing::Test {
+    protected:
+    void SetUp() override {
+        auto [c_in, mat_in, prds_in] = read_material("../input/test.in"); 
+        c = c_in;
+        mat = mat_in;
+        prds = prds_in;
+    }
 
-    auto [c, mat, prds] = read_material("input/test.in"); 
-    
-    // check if dimensions are as expected
-    ASSERT_EQ(c.rows(), 1);
+    Eigen::MatrixXd c;
+    Eigen::Tensor<int, 3> mat;
+    Eigen::VectorXd prds;
+};
+
+TEST_F(InTest, Dimensions) {
+    ASSERT_EQ(c.rows(), 2);
     ASSERT_EQ(c.cols(), 2);
 
     ASSERT_EQ(mat.rank(), 3);
@@ -21,13 +27,19 @@ TEST(InTest, BasicTest) {
     }
 
     ASSERT_EQ(prds.size(), 3);
+}
 
-
-    // check if contents are as expected
+TEST_F(InTest, Contents) {
+    double nu = 0.28;
+    double mod = 210e9;
+    double lambda = mod*nu / ((1+nu)*(1-2*nu));
+    double mu = mod / (2*(1+nu)); 
+    
     EXPECT_DOUBLE_EQ(c(0, 0), lambda);
     EXPECT_DOUBLE_EQ(c(0, 1), mu);
 
-    EXPECT_EQ(mat(1, 1, 1), 0);
+    EXPECT_EQ(mat(0, 0, 0), 0);
+    EXPECT_EQ(mat(1, 1, 1), 1);
 
     EXPECT_DOUBLE_EQ(prds(2), 2.0);
 }

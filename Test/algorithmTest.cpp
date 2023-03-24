@@ -70,7 +70,29 @@ TEST_F(AlgorithmTest, error) {
 }
 
 TEST_F(AlgorithmTest, waveVec) {
-    // check if function waveVec works
+    Eigen::Array<int, 3, 1> inds;
+    inds << 0, 0, 0;
+    
+    Eigen::Array<double, 3, 1> xi = m.waveVec(inds);
+
+    EXPECT_DOUBLE_EQ(xi(0), 0.0);
+    EXPECT_DOUBLE_EQ(xi(1), 0.0);
+    EXPECT_DOUBLE_EQ(xi(2), 0.0);
+
+    inds << 1, 1, 1;
+
+    xi = m.waveVec(inds);
+
+    EXPECT_DOUBLE_EQ(xi(0), -0.5);
+    EXPECT_DOUBLE_EQ(xi(1), 1.0/3.0);
+    EXPECT_DOUBLE_EQ(xi(2), 0.25);
+
+    inds << 1, 2, 2;
+    
+    xi = m.waveVec(inds);
+    
+    EXPECT_DOUBLE_EQ(xi(1), -1.0/3.0);
+    EXPECT_DOUBLE_EQ(xi(2), -0.5);
 }
 
 TEST_F(AlgorithmTest, greenOp) {

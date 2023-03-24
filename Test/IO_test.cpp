@@ -6,7 +6,7 @@
 class InTest: public ::testing::Test {
     protected:
     void SetUp() override {
-        auto [c_in, mat_in, prds_in] = read_material("../input/test.in"); 
+        auto [c_in, mat_in, prds_in] = read_material("../Input/test.in"); 
         c = c_in;
         mat = mat_in;
         prds = prds_in;

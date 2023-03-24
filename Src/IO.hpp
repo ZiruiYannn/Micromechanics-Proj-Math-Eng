@@ -4,6 +4,7 @@
 #include <string>
 #include <iostream>
 #include <fstream>
+#include <cassert>
 #include "Eigen/Dense"
 #include "unsupported/Eigen/CXX11/Tensor"
 
@@ -18,6 +19,8 @@ auto read_material(std::string const & filename) {
     std::getline(file, line);
     std::istringstream split_line(line);
     split_line >> num_mat;
+    
+    assert(num_mat > 0);
 
     Eigen::ArrayXXd c(2, num_mat);
 
@@ -36,6 +39,10 @@ auto read_material(std::string const & filename) {
     split_line >> xdim;
     split_line >> ydim;
     split_line >> zdim;
+    
+    assert(xdim > 0);
+    assert(ydim > 0);
+    assert(zdim > 0);
 
     Eigen::Tensor<int, 3> mat(xdim, ydim, zdim);
 
@@ -44,6 +51,9 @@ auto read_material(std::string const & filename) {
             for (int i = 0; i < xdim; i++) {
                 std::getline(file, line);
                 mat(i, j, k) = std::stoi(line);
+
+                assert(mat(i, j, k) >= 0);
+                assert(mat(i, j, k) < num_mat);
             }
         }
     }
@@ -56,6 +66,8 @@ auto read_material(std::string const & filename) {
     for (int i = 0; i < 3; i++) {
         split_line >> t;
         prds(i) = std::stod(t); 
+
+        assert(prds(i) > 0);
     }
 
     file.close();

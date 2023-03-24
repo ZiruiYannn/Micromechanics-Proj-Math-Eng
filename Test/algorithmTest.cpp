@@ -12,7 +12,8 @@ class AlgorithmTest: public ::testing::Test {
         Eigen::Tensor<int, 3> mat(2, 3, 4);
         mat.setConstant(0);
         Eigen::ArrayXXd c(2, 2);
-        c << 1.0, 3.0, 2.0, 4.0;
+        c << 1.0, 3.0, 
+             2.0, 4.0;
         Eigen::ArrayXd prds(3);
         prds << 2.0, 3.0, 4.0;
         double tol = 1e-4;
@@ -25,7 +26,28 @@ class AlgorithmTest: public ::testing::Test {
 };
 
 TEST_F(AlgorithmTest, Initialization) {
-    // check if micromechanics instance is correctly initialized
+    ASSERT_EQ(m.dims_.size(), 3);
+    ASSERT_EQ(m.dims_(0), 2);
+    ASSERT_EQ(m.dims_(1), 3);
+    ASSERT_EQ(m.dims_(2), 4);
+
+    ASSERT_EQ(m.strain_.dimension(0), 6);
+    ASSERT_EQ(m.strain_.dimension(1), 2);
+    ASSERT_EQ(m.strain_.dimension(2), 3);
+    ASSERT_EQ(m.strain_.dimension(3), 4);
+    ASSERT_TRUE(m.strain_(all, last, last, last).isApprox(E));
+
+    ASSERT_EQ(m.stress_.dimension(0), 6);
+    ASSERT_EQ(m.stress_.dimension(1), 2);
+    ASSERT_EQ(m.stress_.dimension(2), 3);
+    ASSERT_EQ(m.stress_.dimension(3), 4);
+
+    // polarization
+
+    // frequencies 
+
+    ASSERT_DOUBLE_EQ(m.lamda_ref, 2.0);
+    ASSERT_DOUBLE_EQ(m.mu_ref, 3.0);
 }
 
 TEST_F(AlgorithmTest, stressCompute) {

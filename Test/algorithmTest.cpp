@@ -51,7 +51,7 @@ TEST_F(AlgorithmTest, Initialization) {
 }
 
 TEST_F(AlgorithmTest, stressCompute) {
-    Eigen::ArrayXd eps(6);
+    Eigen::Array<double, 6, 1> eps;
     strain << 1.0, 2.0, 3.0, 0.75, 0.5, 0.25;
     double lamda = 3.0;
     double mu = 4.0;
@@ -120,7 +120,15 @@ TEST_F(AlgorithmTest, greenOp) {
 }
 
 TEST_F(AlgorithmTest, polarization) {
-    // check if function polarization works
+    Eigen::Array<double, 6, 1> stress = m.stressCompute(m.strain_0, m.c_(0, 0), m.c_(1, 0));
+    Eigen::Array<double, 6, 1> tau = m.polarization(stress, m.strain_0);
+
+    EXPECT_DOUBLE_EQ(tau(0), -2.0);
+    EXPECT_DOUBLE_EQ(tau(1), 1.0);
+    EXPECT_DOUBLE_EQ(tau(2), 1.0);
+    EXPECT_DOUBLE_EQ(tau(3), 0.0);
+    EXPECT_DOUBLE_EQ(tau(4), 0.0);
+    EXPECT_DOUBLE_EQ(tau(6), 0.0);
 }
 
 

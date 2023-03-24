@@ -51,7 +51,18 @@ TEST_F(AlgorithmTest, Initialization) {
 }
 
 TEST_F(AlgorithmTest, stressCompute) {
-    // check if function stressCompute works
+    Eigen::ArrayXd eps(6);
+    strain << 1.0, 2.0, 3.0, 0.75, 0.5, 0.25;
+    double lamda = 3.0;
+    double mu = 4.0;
+    Eigen::Array<double, 6, 1> stress = m.stressCompute(strain, lamda, mu);
+    
+    EXPECT_DOUBLE_EQ(stress(0), 26.0);
+    EXPECT_DOUBLE_EQ(stress(1), 34.0);
+    EXPECT_DOUBLE_EQ(stress(2), 42.0);
+    EXPECT_DOUBLE_EQ(stress(3), 6.0);
+    EXPECT_DOUBLE_EQ(stress(4), 4.0);
+    EXPECT_DOUBLE_EQ(stress(5), 2.0);
 }
 
 TEST_F(AlgorithmTest, error) {

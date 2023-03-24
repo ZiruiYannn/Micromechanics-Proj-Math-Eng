@@ -1,0 +1,6 @@
+# ignore vscode files
+.vscode
+
+# ignore build files, but keep Build directory
+Build/*
+!Build/.gitkeep

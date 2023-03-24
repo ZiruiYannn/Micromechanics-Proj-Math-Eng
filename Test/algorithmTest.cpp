@@ -103,7 +103,20 @@ TEST_F(AlgorithmTest, waveVec) {
 }
 
 TEST_F(AlgorithmTest, greenOp) {
-    // check if function greenOp works
+    Eigen::Array<double, 3, 1> xi;
+    xi << -0.5, 1.0/3.0, 0.25;
+
+    Eigen::Tensor<double, 4> = greenOp(xi);
+
+    ASSERT_EQ(gam.dimension(0), 3);
+    ASSERT_EQ(gam.dimension(1), 3);
+    ASSERT_EQ(gam.dimension(2), 3);
+    ASSERT_EQ(gam.dimension(3), 3);
+
+    EXPECT_NEAR(gam(0, 0, 0, 0), 0.12416017199677509, 1e-5);
+    EXPECT_NEAR(gam(1, 1, 1, 1), 0.07309862940069875, 1e-5);
+    EXPECT_NEAR(gam(2, 2, 2, 2), 0.0446452566514378, 1e-5);
+    EXPECT_NEAR(gam(0, 1, 2, 0), -0.007793603869927439, 1e-5);
 }
 
 TEST_F(AlgorithmTest, polarization) {

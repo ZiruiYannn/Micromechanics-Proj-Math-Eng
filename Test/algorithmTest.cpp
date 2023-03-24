@@ -66,7 +66,14 @@ TEST_F(AlgorithmTest, stressCompute) {
 }
 
 TEST_F(AlgorithmTest, error) {
-    // check if function error works
+    m.stress_.setConstant(1.0);
+    for (i = 0; i < 6; i++) {
+        m.stress_(i, 0, 0, 0) = 2.0;
+    }
+
+    double e = m.error();
+
+    EXPECT_NEAR(e, 0.00015108205966200843, 1e-5);
 }
 
 TEST_F(AlgorithmTest, waveVec) {
@@ -90,7 +97,7 @@ TEST_F(AlgorithmTest, waveVec) {
     inds << 1, 2, 2;
     
     xi = m.waveVec(inds);
-    
+
     EXPECT_DOUBLE_EQ(xi(1), -1.0/3.0);
     EXPECT_DOUBLE_EQ(xi(2), -0.5);
 }

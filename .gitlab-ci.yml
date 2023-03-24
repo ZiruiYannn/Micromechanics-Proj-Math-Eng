@@ -1,0 +1,28 @@
+image: gcc
+
+# build the project
+build:
+  stage: build
+  before_script:
+    - apt update && apt -y install cmake
+  script:
+    - cmake -B Build
+    - cmake --build Build
+  artifacts:
+    paths:
+      - Build/IOTest
+      - Build/algorithmTest
+
+# run tests using the binary built before
+test:
+  stage: test
+  script:
+    - cd Build
+    - ./IOTest 
+    - ./algorithmTest
+
+
+# deploy:
+#   stage: deploy
+#   script: 
+#     - ...

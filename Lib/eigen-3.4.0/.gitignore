@@ -8,11 +8,11 @@ save
 *.old
 *.gmo
 *.qm
-core
 core.*
 *.bak
 *~
 *build*
+!scripts/buildtests.in
 *.moc.*
 *.moc
 ui_*

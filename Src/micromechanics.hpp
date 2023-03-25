@@ -1,84 +1,109 @@
 #ifndef MICROMECHANICS_HPP_
 #define MICROMECHANICS_HPP_
 
-#include "types.hpp"
+
+#include "Eigen/Dense"
+#include "unsupported/Eigen/CXX11/Tensor"
+
 
 namespace mme {
 
-    template <typename type_mat, typename type_c, typename maxit_type>
+    template <typename Precision>
     class micromechanics {
-        private:
-            Array3 dims_;
+        public:
+            Eigen::Array<int,3, 1> dims_;
             
-            Vec6 strain_0;
-            type_mat mat_;
-            type_c c_;
-            precision_type lamda_ref;
-            precision_type mu_ref;
-            Vec3 prds_;
+            Eigen::Array<Precision, 6, 1> strain_0;
+            Eigen::Tensor<Precision, 4> mat_;
+            Eigen::Tensor<Precision, 2> c_;
+            Precision lamda_ref;
+            Precision mu_ref;
+            Eigen::Array<Precision, 3, 1> prds_;
             
-            precision_type tol_;
-            maxit_type maxit_;
+            precision tol_;
+            int maxit_;
+
+            Eigen::Tensor<Precision, 4> strain_;
+            Eigen::Tensor<Precision, 4> stress_;
             
 
         public:            
-            micromechanics(Vec6 E, type_mat mat, type_c c, Vec3 prds, precision_type tol, maxit_type maxit): 
-            strain_0(E), mat_(mat), c_(c), prds_(prds), tol_(tol), maxit_(maxit) {
+            micromechanics(Eigen::Array<Precision, 6, 1> E, Eigen::Tensor<Precison,4> mat, Eigen::Tensor<Precision, 2> c, \
+            Eigen::Array<Precision, 3, 1> prds, Precision tol, int maxit): strain_0(E), mat_(mat), c_(c), prds_(prds), tol_(tol), \
+            maxit_(maxit) {
+
+                //initial dims_
                 // mat(matrial number, x, y, z)
                 auto dims_mat = mat.dimensions();
-                for (size_type i=0; i<3; i++) {
-                    dims_[i] = dims_mat[i+1];
+                for (int i=0; i<3; i++) {
+                    dims_(i) = dims_mat(i+1);
                 }
+
+                //initial lamda_ref and mu_ref
                 // c is a matrix, the first row is lamda, the second row is mu
-                auto dims_c = c.dimensions();
-                lamda_ref = 0;
-                mu_ref = 0;
-                for (size_type i=0; i<dims_c[0];i++) {
-                    lamda_ref += c(0,i);
+                Eigen::array<int, 1, 1> reduce_dim={0}; 
+                Eigen::Tensor<int, 1> max_c = c.maximum(reduce_dim); //store the max value of each row
+                Eigen::Tensor<int, 1> min_c = c.minimum(reduce_dim); //store the min value of each row
+
+                lamda_ref = (max_c(0) + min_c(0))/2;
+                mu_ref = (max_c(1) + min_c(1))/2;
+
+                //initial strain_ and stress_
+                Eigen::Tensor<Precision,4> eps(6,dims_mat(0),dims_mat(1),dims_mat(2));
+                Eigen::Tensor<Precision,4> sig(6,dims_mat(0),dims_mat(1),dims_mat(2));
+
+                for (int k = 0; k < dims_(2); k++) {
+                    for (int j = 0; j < dims_(1); j++) {
+                        for (int i = 0; i < dims_(0); i++) {
+                            for (int l=0; l < 6; l++) {
+                                eps(l,i,j,k) = E(l);
+                            }
+                        }
+                    }
                 }
-                lamda_ref /= dims_c[0];
-                for (size_type i=0; i<dims_c[1];i++) {
-                    mu_ref += c(1,i);
+
+                strain_ = eps;
+
+                for (int k = 0; k < dims_(2); k++) {
+                    for (int j = 0; j < dims_(1); j++) {
+                        for (int i = 0; i < dims_(0); i++) {
+                            for (int l=0; l < 6; l++) {
+                                sig(l,i,j,k) = 0;
+                            }
+                        }
+                    }
                 }
-                mu_ref /= dims_c[1];
+
+                stress_ = sig;
 
             }
 
             ~micromechanics() {}
-        
-        public:
-            typedef typename Eigen::Tensor<precision_type, 6, dims_[0], dims_[1], dims_[2]> TVec6;
-            typedef typename Eigen::Tensor<precision_type, 3, dims_[0], dims_[1], dims_[2]> TVec3;
-            typedef typename Eigen::Tensor<precision_type, 3, 3, 3, 3> TGreen;
 
-        private:
-            Vec6 stressCompute(Vec6 eps, precision_type lamda, precision_type mu) {
-                precision_type sum =  eps[0] + eps[1] + eps[2];
-                Vec6 sig;
+        public:
+            Eigen::Array<Precision, 6, 1> stressCompute(Eigen::Array<Precision, 6> epsVec, Precision lamda, Precision mu) {
+                Precision sum =  epsVec[0] + epsVec[1] + epsVec[2];
+                Eigen::Array<Precision, 6, 1> sig;
                 sig = eps;
 
                 return sig;
             }
 
-            precision_type error(TVec6 sig) {
+            Precision error(Eigen::Tensor<Precision,4> sig) {
                 return 
             }
 
-            Vec3 waveVec(Array3 inds) {
+            Eigen::Array<Precision,3, 1> waveVec(Eigen::Array<int, 3, 1> inds) {
 
             }
 
-            TGreen greenOp(Vec3 xi) {
+            Eigen::Tensor<Precision, 4> greenOp(Eigen::Array<Precision, 3, 1> xi) {
 
             }
 
-            Vec6 polarization(Vec6 sig, Vec6 eps) {
+            Eigen::Array<Precision, 6, 1> polarization(Eigen::Array<Precision, 6, 1> sigVec, Eigen::Array<Precision, 6, 1> epsVec) {
 
             }
-        
-        private:
-            TVec6 stress_;
-            TVec6 strain_;
             
         public:
             //do the iteration and compute stress_ and strain_
@@ -86,11 +111,11 @@ namespace mme {
 
             }
 
-            TVec6 getStress() const {
+            Eigen::Tensor<Precision, 4> getStress() const {
                 return stress_;
             }
 
-            TVec6 getStress() const {
+            Eigen::Tensor<Precision, 4> getStress() const {
                 return strain_;
             }
 

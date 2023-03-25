@@ -86,17 +86,19 @@ template<typename Precision>
 void write_material(Eigen::Array<Precision, 3, 1> const & prds, Eigen::Tensor<Precision, 4> const & t, int const & idx, std::string const & filename){
     std::ofstream file(filename);
 
-    file << prds(0) << ' ' << prds(1) ' ' << prds(3) << std::endl;
+    file << prds(0) << ' ' << prds(1) << ' ' << prds(2) << std::endl;
 
-    file << t.dimesnion(0) << ' ' << t.dimesnion(1) ' ' << t.dimesnion(3) << std::endl;
+    file << t.dimension(1) << ' ' << t.dimension(2) << ' ' << t.dimension(3) << std::endl;
 
-    for (int k = 0; k < t.dimesnion(0); k++) {
-        for (int j = 0; j < t.dimesnion(1); j++) {
-            for (int i = 0; i < t.dimesnion(2); i++) {
+    for (int k = 0; k < t.dimension(3); k++) {
+        for (int j = 0; j < t.dimension(2); j++) {
+            for (int i = 0; i < t.dimension(1); i++) {
                 file << t(idx, i, j, k) << std::endl;
             }
         }
     }
+
+    file.close();
 }
 
 #endif

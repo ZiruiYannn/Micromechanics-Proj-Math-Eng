@@ -11,14 +11,14 @@ namespace mme {
     template <typename Precision>
     class micromechanics {
         public:
-            Eigen::Array<int,3> dims_;
+            Eigen::Array<int,3, 1> dims_;
             
-            Eigen::Array<Precision, 6> strain_0;
+            Eigen::Array<Precision, 6, 1> strain_0;
             Eigen::Tensor<Precision, 4> mat_;
             Eigen::Tensor<Precision, 2> c_;
             Precision lamda_ref;
             Precision mu_ref;
-            Eigen::Array<Precision, 3> prds_;
+            Eigen::Array<Precision, 3, 1> prds_;
             
             precision tol_;
             int maxit_;
@@ -28,8 +28,8 @@ namespace mme {
             
 
         public:            
-            micromechanics(Eigen::Array<Precision, 6> E, Eigen::Tensor<Precison,4> mat, Eigen::Tensor<Precision, 2> c, \
-            Eigen::Array<Precision, 3> prds, Precision tol, int maxit): strain_0(E), mat_(mat), c_(c), prds_(prds), tol_(tol), \
+            micromechanics(Eigen::Array<Precision, 6, 1> E, Eigen::Tensor<Precison,4> mat, Eigen::Tensor<Precision, 2> c, \
+            Eigen::Array<Precision, 3, 1> prds, Precision tol, int maxit): strain_0(E), mat_(mat), c_(c), prds_(prds), tol_(tol), \
             maxit_(maxit) {
 
                 //initial dims_
@@ -41,7 +41,7 @@ namespace mme {
 
                 //initial lamda_ref and mu_ref
                 // c is a matrix, the first row is lamda, the second row is mu
-                Eigen::array<int, 1> reduce_dim={0}; 
+                Eigen::array<int, 1, 1> reduce_dim={0}; 
                 Eigen::Tensor<int, 1> max_c = c.maximum(reduce_dim); //store the max value of each row
                 Eigen::Tensor<int, 1> min_c = c.minimum(reduce_dim); //store the min value of each row
 
@@ -80,10 +80,10 @@ namespace mme {
 
             ~micromechanics() {}
 
-        private:
-            Eigen::Array<Precision, 6> stressCompute(Eigen::Array<Precision, 6> epsVec, Precision lamda, Precision mu) {
+        public:
+            Eigen::Array<Precision, 6, 1> stressCompute(Eigen::Array<Precision, 6> epsVec, Precision lamda, Precision mu) {
                 Precision sum =  epsVec[0] + epsVec[1] + epsVec[2];
-                Vec6 sig;
+                Eigen::Array<Precision, 6, 1> sig;
                 sig = eps;
 
                 return sig;
@@ -93,15 +93,15 @@ namespace mme {
                 return 
             }
 
-            Eigen::Array<Precision,3> waveVec(Eigen::Array<int,3> inds) {
+            Eigen::Array<Precision,3, 1> waveVec(Eigen::Array<int, 3, 1> inds) {
 
             }
 
-            Eigen::Tensor<Precision, 4> greenOp(Eigen::Array<Precision,3> xi) {
+            Eigen::Tensor<Precision, 4> greenOp(Eigen::Array<Precision, 3, 1> xi) {
 
             }
 
-            Eigen::Array<Precision, 6> polarization(Eigen::Array<Precision, 6> sigVec, Eigen::Array<Precision, 6> epsVec) {
+            Eigen::Array<Precision, 6, 1> polarization(Eigen::Array<Precision, 6, 1> sigVec, Eigen::Array<Precision, 6, 1> epsVec) {
 
             }
             

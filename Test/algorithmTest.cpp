@@ -154,13 +154,13 @@ class AlgorithmTest: public ::testing::Test {
         Ez << -nu*E0, -nu*E0, E0, 0.0, 0.0, 0.0;
     }
 
-    double avg(Eigen::Tensor<double, 4> const & field, int const & dim, Eigen::Array<int, 2, 3> const & range) {
+    double avg(Eigen::Tensor<double, 4> const & field, int const & idx, Eigen::Array<int, 2, 3> const & range) {
         double sum = 0.0;
 
         for (int k = range(0, 0); k < range(1, 0); k++) {
             for (int j = range(0, 1); j < range(1, 1); j++) {
                 for (int i = range(0, 2); k < range(1, 2); i++) {
-                    sum += field(dim, i, j, k);
+                    sum += field(idx, i, j, k);
                 }
             }
         }

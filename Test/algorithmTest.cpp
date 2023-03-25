@@ -13,7 +13,7 @@ class FunctionTest: public ::testing::Test {
              2.0, 4.0;
         prds << 2.0, 3.0, 4.0;
         tol = 1e-4;
-        maxit = 50;
+        maxit = 30;
         m = new mme::micromechanics<double>(E, mat, c, prds, tol, maxit);
     }
 
@@ -135,5 +135,273 @@ TEST_F(FunctionTest, polarization) {
     EXPECT_DOUBLE_EQ(tau(4), 0.0);
     EXPECT_DOUBLE_EQ(tau(6), 0.0);
 }
+
+
+
+class AlgorithmTest: public ::testing::Test {
+    protected:
+    void SetUp() override {
+        lambda1 = mod1*nu / ((1+nu)*(1-2*nu));
+        mu1 = mod1 / (2*(1+nu));
+
+        lambda2 = mod2*nu / ((1+nu)*(1-2*nu));
+        mu2 = mod2 / (2*(1+nu));
+
+        lambda3 = mod3*nu / ((1+nu)*(1-2*nu));
+        mu3 = mod3 / (2*(1+nu));
+
+        Ex << E0, -nu*E0, -nu*E0, 0.0, 0.0, 0.0;
+        Ez << -nu*E0, -nu*E0, E0, 0.0, 0.0, 0.0;
+    }
+
+    double avg(Eigen::Tensor<double, 4> const & field, int const & dim, Eigen::Array<int, 2, 3> const & range) {
+        double sum = 0.0;
+
+        for (int k = range(0, 0); k < range(1, 0); k++) {
+            for (int j = range(0, 1); j < range(1, 1); j++) {
+                for (int i = range(0, 2); k < range(1, 2); i++) {
+                    sum += field(dim, i, j, k);
+                }
+            }
+        }
+
+        return sum / (field.dimension(0)*field.dimension(1)*field.dimension(2));
+    }
+
+    double nu = 0.28;
+    double mod1 = 210e9;
+    double mod2 = 0.4*mod1;
+    double mod3 = 0.6*mod1;
+    double lambda1;
+    double mu1;
+    double lambda2;
+    double mu2;
+    double lambda3;
+    double mu3;
+    double E0 = 0.01;
+    Eigen::Array<double, 6, 1> Ex;
+    Eigen::Array<double, 6, 1> Ez;
+    double tol = 1e-4;
+    int maxit = 30;
+};
+
+TEST_F(AlgorithmTest, avg) {
+    Eigen::Tensor<double, 4> t(3, 3, 3, 3);
+    for (int k = 0; k < 3; k++) {
+        for (int j = 0; j < 3; j++) {
+            for (int i = 0; i < 3; i++) {
+                t(0, i, j, k) = 1;
+                t(1, i, j, k) = k+1;
+                t(2, i, j, k) = 0;
+            }
+        }
+    }
+    Eigen::Array<int, 2, 3> range;
+    range << 0, 0, 0,
+             3, 3, 3;
+    
+    EXPECT_DOUBLE_EQ(avg(t, 0, range), 1.0);
+    EXPECT_DOUBLE_EQ(avg(t, 1, range), 2.0);
+    EXPECT_DOUBLE_EQ(avg(t, 2, range), 0.0);
+
+    range << 0, 0, 1,
+             3, 3, 3;
+
+    EXPECT_DOUBLE_EQ(avg(t, 1, range), 2.5);
+}
+
+TEST_F(AlgorithmTest, Homogenous) {
+    Eigen::Tensor<int, 3> mat(10, 10, 10);
+    mat.setConstant(0);
+    Eigen::Array<double, 2, 1> c;
+    c << lambda1,
+         mu1;
+    Eigen::Array<double, 3, 1> prds;
+    prds << 10.0, 10.0, 10.0;
+
+    mme::micromechanics<double> m(Ez, mat, c, prds, tol, maxit);
+    m.iteration();
+
+    Eigen::Array<int, 2, 3> range;
+    range << 0, 0, 0,
+             10, 10, 10;
+    double avge = avg(m.getStrain(), 2, range);
+    double avgs = avg(m.getStress(), 2, range);
+
+    EXPECT_DOUBLE_EQ(avgs/avge, mod1);
+}
+
+TEST_F(AlgorithmTest, Series2) {
+    Eigen::Tensor<int, 3> mat(10, 10, 10);
+    mat.setConstant(0);
+    for (int k = 5; k < 10; k++) {
+        for (int j = 0; j < 10; j++) {
+            for (int i = 0; i < 10; i++) {
+                mat(i, j, k) = 1;
+            }
+        }
+    }
+    Eigen::Array<double, 2, 2> c;
+    c << lambda1, lambda2,
+         mu1, mu2;
+    Eigen::Array<double, 3, 1> prds;
+    prds << 10.0, 10.0, 10.0;
+
+    mme::micromechanics<double> m(Ez, mat, c, prds, tol, maxit);
+    m.iteration();
+
+    Eigen::Array<int, 2, 3> range1;
+    range1 << 0, 0, 0,
+             10, 10, 5;
+    Eigen::Array<int, 2, 3> range2;
+    range2 << 0, 0, 5,
+             10, 10, 10;
+    double avg1 = avg(m.getStrain(), 2, range1);
+    double avg2 = avg(m.getStrain(), 2, range2);
+
+    EXPECT_NEAR(avg1/avg2, 0.5, 0.05);
+
+    avg1 = avg(m.getStress(), 2, range1);
+    avg2 = avg(m.getStress(), 2, range2);
+
+    EXPECT_NEAR(avg2/avg1, 1.0, 1e-5);
+}
+
+TEST_F(AlgorithmTest, Parallel2) {
+    Eigen::Tensor<int, 3> mat(10, 10, 10);
+    mat.setConstant(0);
+    for (int k = 5; k < 10; k++) {
+        for (int j = 0; j < 10; j++) {
+            for (int i = 0; i < 10; i++) {
+                mat(i, j, k) = 1;
+            }
+        }
+    }
+    Eigen::Array<double, 2, 2> c;
+    c << lambda1, lambda2,
+         mu1, mu2;
+    Eigen::Array<double, 3, 1> prds;
+    prds << 10.0, 10.0, 10.0;
+
+    mme::micromechanics<double> m(Ex, mat, c, prds, tol, maxit);
+    m.iteration();
+
+    Eigen::Array<int, 2, 3> range1;
+    range1 << 0, 0, 0,
+             10, 10, 5;
+    Eigen::Array<int, 2, 3> range2;
+    range2 << 0, 0, 5,
+             10, 10, 10;
+    double avg1 = avg(m.getStress(), 0, range1);
+    double avg2 = avg(m.getStress(), 0, range2);
+
+    EXPECT_NEAR(avg1/avg2, 0.4, 1e-5);
+
+    avg1 = avg(m.getStrain(), 0, range1);
+    avg2 = avg(m.getStrain(), 0, range2);
+
+    EXPECT_NEAR(avg2/avg1, 1.0, 1e-5);
+}
+
+TEST_F(AlgorithmTest, Series3) {
+    Eigen::Tensor<int, 3> mat(10, 10, 15);
+    mat.setConstant(0);
+    for (int k = 5; k < 10; k++) {
+        for (int j = 0; j < 10; j++) {
+            for (int i = 0; i < 10; i++) {
+                mat(i, j, k) = 1;
+            }
+        }
+    }
+    for (int k = 10; k < 15; k++) {
+        for (int j = 0; j < 10; j++) {
+            for (int i = 0; i < 10; i++) {
+                mat(i, j, k) = 2;
+            }
+        }
+    }
+    Eigen::Array<double, 2, 3> c;
+    c << lambda1, lambda2, lambda3,
+         mu1, mu2, mu3;
+    Eigen::Array<double, 3, 1> prds;
+    prds << 10.0, 10.0, 15.0;
+
+    mme::micromechanics<double> m(Ez, mat, c, prds, tol, maxit);
+    m.iteration();
+
+    Eigen::Array<int, 2, 3> range1;
+    range1 << 0, 0, 0,
+             10, 10, 5;
+    Eigen::Array<int, 2, 3> range2;
+    range2 << 0, 0, 5,
+             10, 10, 10;
+    Eigen::Array<int, 2, 3> range3;
+    range3 << 0, 0, 10,
+             10, 10, 15;  
+    double avg1 = avg(m.getStrain(), 2, range1);
+    double avg2 = avg(m.getStrain(), 2, range2);
+    double avg3 = avg(m.getStrain(), 2, range3);
+
+    EXPECT_NEAR(avg1/avg2, 0.5, 0.05);
+    EXPECT_NEAR(avg1/avg3, 0.6, 0.05);
+
+    avg1 = avg(m.getStress(), 2, range1);
+    avg2 = avg(m.getStress(), 2, range2);
+    avg3 = avg(m.getStress(), 2, range3);
+
+    EXPECT_NEAR(avg2/avg1, 1.0, 0.5);
+    EXPECT_NEAR(avg3/avg1, 1.0, 0.5);
+}
+
+TEST_F(AlgorithmTest, Parallel3) {
+    Eigen::Tensor<int, 3> mat(10, 10, 15);
+    mat.setConstant(0);
+    for (int k = 5; k < 10; k++) {
+        for (int j = 0; j < 10; j++) {
+            for (int i = 0; i < 10; i++) {
+                mat(i, j, k) = 1;
+            }
+        }
+    }
+    for (int k = 10; k < 15; k++) {
+        for (int j = 0; j < 10; j++) {
+            for (int i = 0; i < 10; i++) {
+                mat(i, j, k) = 2;
+            }
+        }
+    }
+    Eigen::Array<double, 2, 3> c;
+    c << lambda1, lambda2, lambda3,
+         mu1, mu2, mu3;
+    Eigen::Array<double, 3, 1> prds;
+    prds << 10.0, 10.0, 15.0;
+
+    mme::micromechanics<double> m(Ex, mat, c, prds, tol, maxit);
+    m.iteration();
+
+    Eigen::Array<int, 2, 3> range1;
+    range1 << 0, 0, 0,
+             10, 10, 5;
+    Eigen::Array<int, 2, 3> range2;
+    range2 << 0, 0, 5,
+             10, 10, 10;
+    Eigen::Array<int, 2, 3> range3;
+    range3 << 0, 0, 10,
+             10, 10, 15;  
+    double avg1 = avg(m.getStress(), 2, range1);
+    double avg2 = avg(m.getStress(), 2, range2);
+    double avg3 = avg(m.getStress(), 2, range3);
+
+    EXPECT_NEAR(avg2/avg1, 0.4, 1e-5);
+    EXPECT_NEAR(avg3/avg1, 0.6, 1e-5);
+
+    avg1 = avg(m.getStrain(), 2, range1);
+    avg2 = avg(m.getStrain(), 2, range2);
+    avg3 = avg(m.getStrain(), 2, range3);
+
+    EXPECT_NEAR(avg1/avg2, 1.0, 1e-5);
+    EXPECT_NEAR(avg1/avg3, 1.0, 1e-5);
+}
+
 
 

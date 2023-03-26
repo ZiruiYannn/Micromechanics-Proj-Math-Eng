@@ -9,8 +9,11 @@ class FunctionTest: public ::testing::Test {
         mat = Eigen::Tensor<int, 3>(2, 3, 4);
         E << 1.0, -0.5, -0.5, 0.0, 0.0, 0.0;
         mat.setConstant(0);
-        c << 1.0, 3.0, 
-             2.0, 4.0;
+        // c << 1.0, 3.0, 
+        //      2.0, 4.0;
+        c = Eigen::Tensor<double, 2>(2, 2);
+        c(0, 0) = 1.0; c(0, 1) = 3.0;
+        c(1, 0) = 2.0; c(1, 1) = 4.0;
         prds << 2.0, 3.0, 4.0;
         tol = 1e-4;
         maxit = 30;
@@ -19,7 +22,8 @@ class FunctionTest: public ::testing::Test {
 
     Eigen::Array<double, 6, 1> E;
     Eigen::Tensor<int, 3> mat;
-    Eigen::Array<double, 2, 2> c;
+    // Eigen::Array<double, 2, 2> c;
+    Eigen::Tensor<double,2> c;
     Eigen::Array<double, 3, 1> prds;
     double tol;
     int maxit;
@@ -213,9 +217,12 @@ TEST_F(AlgorithmTest, avg) {
 TEST_F(AlgorithmTest, Homogenous) {
     Eigen::Tensor<int, 3> mat(10, 10, 10);
     mat.setConstant(0);
-    Eigen::Array<double, 2, 1> c;
-    c << lambda1,
-         mu1;
+    // Eigen::Array<double, 2, 1> c;
+    // c << lambda1,
+    //      mu1;
+    Eigen::Tensor<double, 2> c(2, 1);
+    c(0, 0) = lambda1;
+    c(1, 0) = mu1;
     Eigen::Array<double, 3, 1> prds;
     prds << 10.0, 10.0, 10.0;
 
@@ -241,9 +248,12 @@ TEST_F(AlgorithmTest, Series2) {
             }
         }
     }
-    Eigen::Array<double, 2, 2> c;
-    c << lambda1, lambda2,
-         mu1, mu2;
+    // Eigen::Array<double, 2, 2> c;
+    // c << lambda1, lambda2,
+    //      mu1, mu2;
+    Eigen::Tensor<double, 2> c(2, 2);
+    c(0, 0) = lambda1; c(0, 1) = lambda2;
+    c(1, 0) = mu1; c(1, 1) = mu2;
     Eigen::Array<double, 3, 1> prds;
     prds << 10.0, 10.0, 10.0;
 
@@ -277,9 +287,12 @@ TEST_F(AlgorithmTest, Parallel2) {
             }
         }
     }
-    Eigen::Array<double, 2, 2> c;
-    c << lambda1, lambda2,
-         mu1, mu2;
+    // Eigen::Array<double, 2, 2> c;
+    // c << lambda1, lambda2,
+    //      mu1, mu2;
+    Eigen::Tensor<double, 2> c(2, 2);
+    c(0, 0) = lambda1; c(0, 1) = lambda2;
+    c(1, 0) = mu1; c(1, 1) = mu2;
     Eigen::Array<double, 3, 1> prds;
     prds << 10.0, 10.0, 10.0;
 
@@ -320,9 +333,12 @@ TEST_F(AlgorithmTest, Series3) {
             }
         }
     }
-    Eigen::Array<double, 2, 3> c;
-    c << lambda1, lambda2, lambda3,
-         mu1, mu2, mu3;
+    // Eigen::Array<double, 2, 3> c;
+    // c << lambda1, lambda2, lambda3,
+    //      mu1, mu2, mu3;
+    Eigen::Tensor<double, 2> c(2, 3);
+    c(0, 0) = lambda1; c(0, 1) = lambda2; c(0, 2) = lambda3;
+    c(1, 0) = mu1; c(1, 1) = mu2; c(1, 2) = mu3;
     Eigen::Array<double, 3, 1> prds;
     prds << 10.0, 10.0, 15.0;
 
@@ -370,9 +386,12 @@ TEST_F(AlgorithmTest, Parallel3) {
             }
         }
     }
-    Eigen::Array<double, 2, 3> c;
-    c << lambda1, lambda2, lambda3,
-         mu1, mu2, mu3;
+    // Eigen::Array<double, 2, 3> c;
+    // c << lambda1, lambda2, lambda3,
+    //      mu1, mu2, mu3;
+    Eigen::Tensor<double, 2> c(2, 3);
+    c(0, 0) = lambda1; c(0, 1) = lambda2; c(0, 2) = lambda3;
+    c(1, 0) = mu1; c(1, 1) = mu2; c(1, 2) = mu3;
     Eigen::Array<double, 3, 1> prds;
     prds << 10.0, 10.0, 15.0;
 

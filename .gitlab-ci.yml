@@ -29,4 +29,7 @@ visualization:
     - pip install packaging
   script: 
     - cd Src
-    - python visualization.py "../Output/test.out"
+    - python visualization.py "../Output/test.out" "../Output/test.png"
+  artifacts:
+    paths:
+      - Output/test.png

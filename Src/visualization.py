@@ -49,7 +49,7 @@ def visualize(x, y, z, values,
               x_slices=[], y_slices=[], z_slices=[], 
               opacity=1,
               filename=None,
-              renderer="browser"):
+              renderer=None):
     if len(x_slices) == 0: 
         x_slices_show = False
     if len(y_slices) == 0: 
@@ -77,16 +77,16 @@ def visualize(x, y, z, values,
         fig.show(renderer=renderer)
 
 
-def main(filename):
-    x, y, z, values = read_material(filename)
+def main(filename_in, filename_out):
+    x, y, z, values = read_material(filename_in)
     
     # specify visualization parameters
-    visualize(x, y, z, values)
+    visualize(x, y, z, values, filename=filename_out)
 
 
 
 
 
-main(sys.argv[1])
+main(sys.argv[1], sys.argv[2])
 
 

@@ -46,3 +46,22 @@ TEST_F(InTest, Contents) {
     EXPECT_DOUBLE_EQ(prds(1), 2.0);
     EXPECT_DOUBLE_EQ(prds(2), 3.0);
 }
+
+TEST(OutTest, Working) {
+    Eigen::Array<double, 3, 1> prds;
+    prds << 2.0, 2.0, 3.0;
+    Eigen::Tensor<double, 4> t(2, 2, 2, 3);
+    t.setConstant(0);
+    for (int j = 0; j < 2; j++) {
+        for (int i = 0; i < 2; i++) {
+            t(0, i, j, 1) = 1.0;
+        }
+    }
+    for (int j = 0; j < 2; j++) {
+        for (int i = 0; i < 2; i++) {
+            t(0, i, j, 2) = 2.0;
+        }
+    }
+
+    write_material(prds, t, 0, "../Output/test.out");
+}

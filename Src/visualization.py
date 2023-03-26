@@ -1,4 +1,5 @@
 import plotly.graph_objects as go
+import sys
 
 # read material information from file
 def read_material(filename):
@@ -76,16 +77,16 @@ def visualize(x, y, z, values,
         fig.show(renderer=renderer)
 
 
+def main(filename):
+    x, y, z, values = read_material(filename)
+    
+    # specify visualization parameters
+    visualize(x, y, z, values)
 
 
 
 
 
-
-
-
-
-
-
+main(sys.argv[1])
 
 

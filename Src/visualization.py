@@ -25,8 +25,44 @@ def read_material(filename):
     return x, y, z, values
 
 
-def visualize(x, y, z, values):
-    return
+def visualize(x, y, z, values, 
+              x_show=True, y_show=True, z_show=True, 
+              surface_count=2, 
+              x_slices=[], y_slices=[], z_slices=[], 
+              opacity=1,
+              renderer="browser"):
+    if len(x_slices) == 0: 
+        x_slices_show = False
+    if len(y_slices) == 0: 
+        y_slices_show = False
+    if len(z_slices) == 0: 
+        z_slices_show = False
+    
+    fig= go.Figure(data=go.Isosurface(
+            x = x,
+            y = y,
+            z = z,
+            value = values,
+            caps = dict(x_show = x_show, y_show = y_show, z_show = z_show),
+            surface_count = surface_count,
+            slices_x = dict(show=x_slices_show, locations=x_slices),
+            slices_y = dict(show=y_slices_show, locations=y_slices),
+            slices_z = dict(show=z_slices_show, locations=z_slices),
+            opacity = opacity,
+        ))
+
+    fig.show(renderer=renderer)
+
+
+
+
+
+
+
+
+
+
+
 
 
 

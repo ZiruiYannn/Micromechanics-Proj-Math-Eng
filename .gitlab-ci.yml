@@ -21,7 +21,11 @@ test:
     - cd Build
     - ./IOTest # would like to do this using ctest to run all tests with a single command
 
-# deploy:
-#   stage: deploy
-#   script: 
-#     - ...
+# 
+visualization
+  image: python:latest
+  before_script: 
+    - pip install plotly==5.13.1
+    - pip install kaleido
+  script: 
+    - python visualization.py "../Output/test.out"

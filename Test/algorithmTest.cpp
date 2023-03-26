@@ -140,6 +140,22 @@ TEST_F(FunctionTest, polarization) {
     EXPECT_DOUBLE_EQ(tau(6), 0.0);
 }
 
+TEST_F(FunctionTest, ten2vec) {
+
+}
+
+TEST_F(FunctionTest, vec2ten) {
+    
+}
+
+TEST_F(FunctionTest, r2f) {
+    
+}
+
+TEST_F(FunctionTest, f2r) {
+    
+}
+
 
 
 class AlgorithmTest: public ::testing::Test {

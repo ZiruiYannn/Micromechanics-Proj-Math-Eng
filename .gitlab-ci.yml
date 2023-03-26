@@ -27,4 +27,5 @@ visualization:
     - pip install plotly==5.13.1
     - pip install kaleido
   script: 
+    - cd Build
     - python visualization.py "../Output/test.out"

@@ -1,6 +1,7 @@
 #include "gtest/gtest.h"
 #include "Eigen/Dense"
 #include "unsupported/Eigen/CXX11/Tensor"
+#include <complex>
 #include "micromechanics.hpp"
 
 class FunctionTest: public ::testing::Test {

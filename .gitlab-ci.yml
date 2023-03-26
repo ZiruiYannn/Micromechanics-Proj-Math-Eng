@@ -18,6 +18,9 @@ test:
   script:
     - cd Build
     - ./IOTest 
+  artifacts:
+    paths:
+      - Output/test.out
 
 # test run visualization.py
 visualization:

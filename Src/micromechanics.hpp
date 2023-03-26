@@ -30,7 +30,9 @@ namespace mme {
             Eigen::Tensor<Precision, 4> stress_;
             
             bool reach_maxit = false;
-        public:            
+        public:
+            micromechanics() = default;
+
             micromechanics(Eigen::Array<Precision, 6, 1> E, Eigen::Tensor<Precison,3> mat, Eigen::Tensor<Precision, 2> c, \
             Eigen::Array<Precision, 3, 1> prds, Precision tol, int maxit): strain_0(E), mat_(mat), c_(c), prds_(prds), tol_(tol), \
             maxit_(maxit) {
@@ -85,7 +87,7 @@ namespace mme {
             ~micromechanics() {}
 
         public:
-            Eigen::Array<Precision, 6, 1> stressCompute(Eigen::Array<Precision, 6, 1> epsVec, Precision lamda, Precision mu) {
+            Eigen::Array<Precision, 6, 1> stressCompute(const Eigen::Array<Precision, 6, 1>& epsVec, Precision lamda, Precision mu) const{
                 Precision sum =  epsVec[0] + epsVec[1] + epsVec[2];
                 Eigen::Array<Precision, 6, 1> sigVec;
                 sigVec = 2*mu*epsVec;
@@ -96,17 +98,17 @@ namespace mme {
                 return sig;
             }
 
-            Precision error(Eigen::Tensor<Precision,4> sig) {
+            Precision error(const Eigen::Tensor<Precision,4>& sig) const{
                 Precision e;
 
                 return e;
             }
 
-            Eigen::Array<Precision,3, 1> waveVec(Eigen::Array<int, 3, 1> inds) {
+            Eigen::Array<Precision,3, 1> waveVec(const Eigen::Array<int, 3, 1>& inds) const{
                 
             }
 
-            Eigen::Tensor<Precision, 4> greenOp(Eigen::Array<Precision, 3, 1> xi) {
+            Eigen::Tensor<Precision, 4> greenOp(const Eigen::Array<Precision, 3, 1>& xi) const{
                 Eigen::Tensor<Precision, 4> gam(3,3,3,3);
                 gam.setZero();
                 Precision coef_a, coef_b, xi_square;
@@ -141,14 +143,14 @@ namespace mme {
                 return gam;
             }
 
-            Eigen::Array<Precision, 6, 1> polarization(Eigen::Array<Precision, 6, 1> sigVec, Eigen::Array<Precision, 6, 1> epsVec) {
+            Eigen::Array<Precision, 6, 1> polarization(const Eigen::Array<Precision, 6, 1>& sigVec, const Eigen::Array<Precision, 6, 1>& epsVec) const{
                 Eigen::Array<Precision, 6, 1> tauVec, c_eps;
                 c_eps = stressCompute(epsVec, lamda_ref, mu_ref);
                 tauVec = sigVec - c_eps;
                 return tauVec;
             }
 
-            Eigen::Array<Precision, 6, 1> ten2vec(Eigen::Tensor<Precision, 2> T) {
+            Eigen::Array<Precision, 6, 1> ten2vec(const Eigen::Tensor<Precision, 2>& T) const{
                 Eigen::Array<Precision, 6, 1> V;
                 V(0,0) = T(0,0);
                 V(1,0) = T(1,1);
@@ -160,7 +162,7 @@ namespace mme {
                 return V; 
             }
 
-            Eigen::Tensor<Precision, 2> vec2ten(Eigen::Array<Precision, 6, 1> V) {
+            Eigen::Tensor<Precision, 2> vec2ten(const Eigen::Array<Precision, 6, 1>& V) const{
                 Eigen::Tensor<Precision, 2> T(3,3);
                 for (int i=0; i<3; i++) {
                     T(i,i) = V(i,0);
@@ -178,7 +180,7 @@ namespace mme {
 
 
             //real2freq
-            Eigen::Tensor<std::complex<Precision>, 4> r2f(Eigen::Tensor<Precision, 4> data_r) {
+            Eigen::Tensor<std::complex<Precision>, 4> r2f(const Eigen::Tensor<Precision, 4>& data_r) const {
                 typedef std::complex<Precision> fft_complex_p;
 
                 int N_in = dims_(0,0) * dims_(1,0) * dims_(2,0);
@@ -221,7 +223,7 @@ namespace mme {
             } 
 
             //freq2real
-            Eigen::Tensor<Precision, 4> f2r(Eigen::Tensor<std::complex<Precision>, 4> data_f) {
+            Eigen::Tensor<Precision, 4> f2r(const Eigen::Tensor<std::complex<Precision>, 4>& data_f) const {
                 typedef std::complex<Precision> fft_complex_p;
 
                 int N_out = dims_(0,0) * dims_(1,0) * dims_(2,0);

@@ -179,7 +179,87 @@ namespace mme {
 
             //real2freq
             Eigen::Tensor<std::complex<Precision>, 4> r2f(Eigen::Tensor<Precision, 4> data_r) {
+                typedef std::complex<Precision> fft_complex_p;
+
+                int N_in = dims_(0,0) * dims_(1,0) * dims_(2,0);
+                int N_out = dims_(0,0) * dims_(1,0) * (dims_(2,0)/2+1);
+
+                Precision* in = (Precision*)fftw_malloc(sizeof(Precision) * N_in);
+                fftw_complex_p* out = (fftw_complex_p*)fftw_malloc(sizeof(fft_complex_p) * N_out);               
                 
+                Eigen::Tensor<std::complex<std::complex<Precision>, 4> data_f(6,dims_(0,0),dims_(1,0),dims_(2,0)/2+1);
+
+                fftw_plan plan = fftw_plan_dft_r2c_3d(dims_(0,0), dims_(1,0), dims_(2,0),\
+                 in, out, FFTW_ESTIMATE);
+
+                //eigen col-major, fftw row-major => j * dims_(1,0) *dims_(2,0) + k*dims_(2,0) + l
+                for (int i=0; i<6; i++) {
+                    for (int l=0; l<dims_(2,0); l++) {
+                        for (int k=0; k<dims_(1,0); k++) {
+                            for (int j=0; i<dims_(0,0); j++) {
+                                in[j * dims_(1,0) *dims_(2,0) + k*dims_(2,0) + l] = data_r(i,j,k,l);
+                            }
+                        }
+                    }
+
+                    fftw_execute(plan);
+
+                    for (int l=0; l<(dims_(2,0)/2 + 1); l++) {
+                        for (int k=0; k<dims_(1,0); k++) {
+                            for (int j=0; i<dims_(0,0); j++) {
+                                data_f(i,j,k,l) = out[j * dims_(1,0) *dims_(2,0) + k*dims_(2,0) + l];
+                            }
+                        }
+                    }
+                }
+
+                fftw_destroy_plan(plan);
+                fftw_free(in);
+                fftw_free(out);
+
+                return data_f;
+            } 
+
+            //freq2real
+            Eigen::Tensor<Precision, 4> f2r(Eigen::Tensor<std::complex<Precision>, 4> data_f) {
+                typedef std::complex<Precision> fft_complex_p;
+
+                int N_out = dims_(0,0) * dims_(1,0) * dims_(2,0);
+                int N_in = dims_(0,0) * dims_(1,0) * (dims_(2,0)/2+1);
+
+                Precision* out = (Precision*)fftw_malloc(sizeof(Precision) * N_out);
+                fftw_complex_p* in = (fftw_complex_p*)fftw_malloc(sizeof(fft_complex_p) * N_in);               
+                
+                Eigen::Tensor<std::complex<std::complex<Precision>, 4> data_r(6,dims_(0,0),dims_(1,0),dims_(2,0));
+
+                fftw_plan plan = fftw_plan_dft_c2r_3d(dims_(0,0), dims_(1,0), dims_(2,0),\
+                 in, out, FFTW_ESTIMATE);
+
+                for (int i=0; i<6; i++) {
+                    for (int l=0; l<(dims_(2,0)/2 + 1); l++) {
+                        for (int k=0; k<dims_(1,0); k++) {
+                            for (int j=0; i<dims_(0,0); j++) {
+                                in[j * dims_(1,0) *dims_(2,0) + k*dims_(2,0) + l] = data_f(i,j,k,l);
+                            }
+                        }
+                    }
+
+                    fftw_execute(plan);
+
+                    for (int l=0; l<dims_(2,0); l++) {
+                        for (int k=0; k<dims_(1,0); k++) {
+                            for (int j=0; i<dims_(0,0); j++) {
+                                data_r(i,j,k,l) = out[j * dims_(1,0) *dims_(2,0) + k*dims_(2,0) + l];
+                            }
+                        }
+                    }
+                }
+
+                fftw_destroy_plan(plan);
+                fftw_free(in);
+                fftw_free(out);
+
+                return data_r;
             }
             
         public:

@@ -38,12 +38,16 @@ def read_material(filename):
 #           x_slices, y_slices, z_slices: array indicating the points at which to visualize a material slice for respective dimension 
 #                                         empty array results in no specific material slice to be visualized for respective dimension 
 #           opacity: opacity level of visualization with 1 being non-opaque and 0 being completely seetrough
+#           filename: file location and name + extension to save the visulization on disk
+#                     None results in no image locally stored
 #           renderer: plotly renderer to use when visualizing the material (browser, png, vsg, ...)
+#                     None results in no visualization being displayed
 def visualize(x, y, z, values, 
               x_show=True, y_show=True, z_show=True, 
               surface_count=2, 
               x_slices=[], y_slices=[], z_slices=[], 
               opacity=1,
+              filename=None,
               renderer="browser"):
     if len(x_slices) == 0: 
         x_slices_show = False
@@ -64,8 +68,12 @@ def visualize(x, y, z, values,
             slices_z = dict(show=z_slices_show, locations=z_slices),
             opacity = opacity,
         ))
-
-    fig.show(renderer=renderer)
+    
+    if filename != None:
+        fig.write_image(filename)
+    
+    if renderer != None:
+        fig.show(renderer=renderer)
 
 
 

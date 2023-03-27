@@ -19,7 +19,7 @@ namespace mme {
             
             Eigen::Array<Precision, 6, 1> strain_0;
             Eigen::Tensor<int, 3> mat_;
-            Eigen::Tensor<Precision, 2> c_;
+            Eigen::Array<Precision, 2, Eigen::Dynamic> c_;
             Precision lamda_ref;
             Precision mu_ref;
             Eigen::Array<Precision, 3, 1> prds_;
@@ -34,10 +34,10 @@ namespace mme {
         public:
             micromechanics() = default;
 
-            micromechanics(Eigen::Array<Precision, 6, 1> E, Eigen::Tensor<int, 3> mat, Eigen::Tensor<Precision, 2> c, \
-            Eigen::Array<Precision, 3, 1> prds, Precision tol, int maxit): strain_0(E), mat_(mat), c_(c), prds_(prds), tol_(tol), \
-            maxit_(maxit) {
-
+            micromechanics(Eigen::Array<Precision, 6, 1> E, Eigen::Tensor<int, 3> mat, Eigen::Array<Precision, 2, Eigen::Dynamic> c, \
+            Eigen::Array<Precision, 3, 1> prds, Precision tol, int maxit)
+            : strain_0(E), mat_(mat), c_(c), prds_(prds), tol_(tol), maxit_(maxit) 
+            {
                 //initial dims_
                 for (int i=0; i<3; i++) {
                     dims_(i) = mat.dimension(i);
@@ -45,11 +45,8 @@ namespace mme {
 
                 //initial lamda_ref and mu_ref
                 // c is a matrix, the first row is lamda, the second row is mu
-                Eigen::Array<int, 1, 1> reduce_dim;
-                reduce_dim << 0; 
-                Eigen::Tensor<int, 1> max_c = c.maximum(reduce_dim); //store the max value of each row
-                Eigen::Tensor<int, 1> min_c = c.minimum(reduce_dim); //store the min value of each row
-
+                auto max_c = c_.rowwise().maxCoeff();
+                auto min_c = c_.rowwise().maxCoeff();
                 lamda_ref = (max_c(0) + min_c(0))/2;
                 mu_ref = (max_c(1) + min_c(1))/2;
 
@@ -78,7 +75,6 @@ namespace mme {
                 }
 
                 stress_ = sig;
-
             }
 
             ~micromechanics() {}

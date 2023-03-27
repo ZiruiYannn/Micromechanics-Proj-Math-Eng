@@ -34,7 +34,7 @@ namespace mme {
         public:
             micromechanics() = default;
 
-            micromechanics(Eigen::Array<Precision, 6, 1> E, Eigen::Tensor<int, 3, Eigen::ColMajor> mat, Eigen::Tensor<Precision, 2, Eigen::ColMajor> c, \
+            micromechanics(Eigen::Array<Precision, 6, 1> E, Eigen::Tensor<int, 3> mat, Eigen::Tensor<Precision, 2> c, \
             Eigen::Array<Precision, 3, 1> prds, Precision tol, int maxit): strain_0(E), mat_(mat), c_(c), prds_(prds), tol_(tol), \
             maxit_(maxit) {
 
@@ -320,23 +320,68 @@ namespace mme {
             
         public:
             //do the iteration and compute stress_ and strain_
+            //do the iteration and compute stress_ and strain_
             void iteration() {
-                Eigen::Array<Precision, 6, 1> tau;
+                Eigen::Tensor<Precision, 4> tau(6,dims_(0,0),dims_(1,0),dims_(2,0));
+                Eigen::Tensor<Precision, 4> tau_f(6,dims_(0,0),dims_(1,0),dims_(2,0)/2 + 1);
+                Eigen::Tensor<Precision, 4> c0_eps(6,dims_(0,0),dims_(1,0),dims_(2,0));
+                Eigen::Tensor<Precision, 4> eps_f(6,dims_(0,0),dims_(1,0),dims_(2,0)/2 + 1);
+                Eigen::Tensor<Precision, 4> gam(2,2,2,2);
+                Eigen::Tensor<Precision, 2> temp(3,3);
+                Eigen::Array<Precision, 3, 1> xi;
+                Eigen::Array<int, 3, 1> inds
 
                 int count = 0;
                 Precision err;
                 err = error(stress_);
 
                 while (err > tol_ && count < maxit_) {
-                    
+                    for (int k=0; k < dims_(2,0); k++) {
+                        for (int j=0; j < dims_(1,0); j++) {
+                            for (int i=0; i < dims_(0,0); i++) {
+                                array2tensor4d(c0_eps, stressCompute(tensor4d2array(strain_, i, j, k)), i, j, k);
+                            }
+                        }
+                    }
+                    tau = stress_ -  c0_eps;
+                    tau_f = r2f(tau);
+                    //stress_dot_wave = sig_ten.contract(wave_ten, Eigen::array<Eigen::IndexPair<int>, 1>{{Eigen::IndexPair<int>(1, 0)}});
+                    for (int k=0; k < dims_(2,0)/2 + 1; k++) {
+                        for (int j=0; j < dims_(1,0); j++) {
+                            for (int i=0; i < dims_(0,0); i++) {
+                                inds(0) = i;
+                                inds(1) = j;
+                                inds(2) = k;
+                                xi = waveVec(inds);
+                                gam = greenOp(xi);
+                                temp = -greenOp.contract(tensor4d2array(tau, i, j, k), Eigen::array<Eigen::IndexPair<int>, 2>{Eigen::IndexPair<int>(2, 0), Eigen::IndexPair<int>(3, 1)})
+                                array2tensor4d(eps_f, temp, i, j, k); 
+                            }
+                        }
+                    }
+                    strain_ = f2r(eps_f);
+
+                    for (int k = 0; k < dims_(2); k++) {
+                        for (int j = 0; j < dims_(1); j++) {
+                            for (int i = 0; i < dims_(0); i++) {
+                                array2tensor4d(stress_, stressCompute(tensor4d2array(strain_, i, j, k), c(0, mat(i , j, k)), c(1, mat(i , j, k))), i, j, k);
+                            }
+                        }
+                    }
+
+                    count++;
+                    err = error(stress_);
                 }
 
-                if (count == maxit_) {
+                
 
+                if (count >= maxit_) {
+                    reach_maxit = true;
                 }
 
 
             }
+
 
             Eigen::Tensor<Precision, 4> getStress() const {
                 return stress_;

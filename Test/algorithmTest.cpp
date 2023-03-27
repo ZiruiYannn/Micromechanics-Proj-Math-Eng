@@ -7,8 +7,8 @@
 class FunctionTest: public ::testing::Test {
     protected:
     void SetUp() override {
-        mat = Eigen::Tensor<int, 3>(2, 3, 4);
         E << 1.0, -0.5, -0.5, 0.0, 0.0, 0.0;
+        mat = Eigen::Tensor<int, 3>(2, 3, 4);
         mat.setConstant(0);
         // c << 1.0, 3.0, 
         //      2.0, 4.0;

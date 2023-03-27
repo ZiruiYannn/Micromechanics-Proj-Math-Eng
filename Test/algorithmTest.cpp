@@ -56,6 +56,18 @@ TEST_F(FunctionTest, Initialization) {
     EXPECT_DOUBLE_EQ(m.mu_ref, 3.0);
 }
 
+TEST_F(FunctionTest, tensor4d2array) {
+    mme::micromechanics<double> m(E, mat, c, prds, tol, maxit);
+
+    // test
+}
+
+TEST_F(FunctionTest, array2tensor4d) {
+    mme::micromechanics<double> m(E, mat, c, prds, tol, maxit);
+
+    // test
+}
+
 TEST_F(FunctionTest, stressCompute) {
     mme::micromechanics<double> m(E, mat, c, prds, tol, maxit);
 

@@ -46,7 +46,7 @@ namespace mme {
                 //initial lamda_ref and mu_ref
                 // c is a matrix, the first row is lamda, the second row is mu
                 auto max_c = c_.rowwise().maxCoeff();
-                auto min_c = c_.rowwise().maxCoeff();
+                auto min_c = c_.rowwise().minCoeff();
                 lamda_ref = (max_c(0) + min_c(0))/2;
                 mu_ref = (max_c(1) + min_c(1))/2;
 
@@ -126,7 +126,7 @@ namespace mme {
                             wave_ten(1) = wave_vec(1);
                             wave_ten(2) = wave_vec(2);
                             sig_ten = vec2ten(tensor4d2array(sig, i, j, k));
-                            stress_dot_wave = sig_ten.contract(wave_ten, Eigen::array<Eigen::IndexPair<int>, 1>{{Eigen::IndexPair<int>(1, 0)}});
+                            stress_dot_wave = sig_ten.contract(wave_ten, Eigen::array<Eigen::IndexPair<int>, 1>{Eigen::IndexPair<int>(1, 0)});
                             err += stress_dot_wave(0) * stress_dot_wave(0) + stress_dot_wave(1) * stress_dot_wave(1) + stress_dot_wave(2) * stress_dot_wave(2);
                         }
                     }
@@ -316,7 +316,6 @@ namespace mme {
             
         public:
             //do the iteration and compute stress_ and strain_
-            //do the iteration and compute stress_ and strain_
             void iteration() {
                 Eigen::Tensor<Precision, 4> tau(6,dims_(0,0),dims_(1,0),dims_(2,0));
                 Eigen::Tensor<Precision, 4> tau_f(6,dims_(0,0),dims_(1,0),dims_(2,0)/2 + 1);
@@ -352,7 +351,7 @@ namespace mme {
                                 inds(2) = k;
                                 xi = waveVec(inds);
                                 gam = greenOp(xi);
-                                temp = -gam.contract(tensor4d2array(tau, i, j, k), Eigen::array<Eigen::IndexPair<int>, 2>{Eigen::IndexPair<int>(2, 0), Eigen::IndexPair<int>(3, 1)});
+                                temp = -gam.contract(vec2ten(tensor4d2array(tau_f, i, j, k)), Eigen::array<Eigen::IndexPair<int>, 2>{Eigen::IndexPair<int>(2, 0), Eigen::IndexPair<int>(3, 1)});
                                 array2tensor4d(eps_f, ten2vec(temp), i, j, k); 
                             }
                         }

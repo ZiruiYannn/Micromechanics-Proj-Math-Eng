@@ -6,7 +6,7 @@
 #include "unsupported/Eigen/CXX11/Tensor"
 #include <complex>
 #include <cmath>
-#include "api/fftw3.h"
+#include "fftw3.h"
 
 
 namespace mme {
@@ -23,7 +23,7 @@ namespace mme {
             Precision mu_ref;
             Eigen::Array<Precision, 3, 1> prds_;
             
-            precision tol_;
+            Precision tol_;
             int maxit_;
 
             Eigen::Tensor<Precision, 4> strain_;
@@ -33,7 +33,7 @@ namespace mme {
         public:
             micromechanics() = default;
 
-            micromechanics(Eigen::Array<Precision, 6, 1> E, Eigen::Tensor<Precison,3> mat, Eigen::Tensor<Precision, 2> c, \
+            micromechanics(Eigen::Array<Precision, 6, 1> E, Eigen::Tensor<Precision, 3, Eigen::ColMajor> mat, Eigen::Tensor<Precision, 2, Eigen::ColMajor> c, \
             Eigen::Array<Precision, 3, 1> prds, Precision tol, int maxit): strain_0(E), mat_(mat), c_(c), prds_(prds), tol_(tol), \
             maxit_(maxit) {
 
@@ -55,8 +55,6 @@ namespace mme {
                 //initial strain_ and stress_
                 Eigen::Tensor<Precision,4> eps(6,dims_mat(0),dims_mat(1),dims_mat(2));
                 Eigen::Tensor<Precision,4> sig(6,dims_mat(0),dims_mat(1),dims_mat(2));
-                
-                Eigen::Array<Precision, 6, 1> sigVec;
 
                 for (int k = 0; k < dims_(2); k++) {
                     for (int j = 0; j < dims_(1); j++) {
@@ -98,14 +96,56 @@ namespace mme {
                 return sig;
             }
 
-            Precision error(const Eigen::Tensor<Precision,4>& sig) const{
-                Precision e;
+            Precision error(const Eigen::Tensor<Precision,4, Eigen::ColMajor>& sig) const{
+                Precision err;
+                Eigen::Tensor<double, 1> wave_ten(3);
+                Eigen::Tensor<double, 2> sig_ten(3,3);
+                Eigen::Array<Precision,3, 1> wave_vec;
+                Eigen::Array<Precision,3, 1> inds;
+                Precision stress_dot_wave;
 
-                return e;
+                err = 0;
+                for (k=0; k<dims_(2); k++) {
+                    for (j=0; j<dims_(1); j++) {
+                        for (i=0; i<dims_(0); i++) {
+                            inds(0) = i;
+                            inds(1) = j;
+                            inds(2) = k;
+                            wave_vec = waveVec(inds);
+                            wave_ten(0) = wave_vec(0);
+                            wave_ten(1) = wave_vec(1);
+                            wave_ten(2) = wave_vec(2);
+                            sig_ten = vec2ten(sig.chip({i,j,k},1));
+                            stress_dot_wave = sig_ten.contract(wave_ten, Eigen::array<Eigen::IndexPair<int>, 1>{{Eigen::IndexPair<int>(1, 0)}});
+                            err += stress_dot_wave(0) * stress_dot_wave(0) + stress_dot_wave(1) * stress_dot_wave(1) + stress_dot_wave(2) * stress_dot_wave(2);
+                        }
+                    }
+                }
+
+                err /= dims_(0) * dims_(1) *dims_(2);
+                err = std::sqrt(err);
+
+                Precision temp = 0;
+                for (i=0; i<6; i++) {
+                    temp += sig(i, 0, 0, 0) * sig(i, 0, 0, 0);
+                }
+                err /= temp;
+                return err;
             }
 
             Eigen::Array<Precision,3, 1> waveVec(const Eigen::Array<int, 3, 1>& inds) const{
-                
+                Eigen::Array<Precision,3, 1> xi;
+                for(int i=0; i<3; i++) {
+                    int bound = dims[i] % 2 == 0 ? dims[i] / 2 - 1 : dims[i] / 2;
+                    if (inds(i) <= bound) {
+                        xi(i) = inds(i) /  prds_(i);
+                    } 
+                    else {
+                        xi(i) = (-dims(i) + inds(i)) / prds_(i);
+                    }
+                }
+
+                return xi;
             }
 
             Eigen::Tensor<Precision, 4> greenOp(const Eigen::Array<Precision, 3, 1>& xi) const{
@@ -150,14 +190,14 @@ namespace mme {
                 return tauVec;
             }
 
-            Eigen::Array<Precision, 6, 1> ten2vec(const Eigen::Tensor<Precision, 2>& T) const{
+            Eigen::Array<Precision, 6, 1> ten2vec(const Eigen::Tensor<Precision, 2, Eigen::ColMajor>& T) const{
                 Eigen::Array<Precision, 6, 1> V;
                 V(0,0) = T(0,0);
                 V(1,0) = T(1,1);
                 V(2,2) = T(2,2);
-                V(3,0) = T(0,1); //xy
+                V(3,0) = T(1,2); //yz
                 V(4,0) = T(0,2); //xz
-                V(5,0) = T(1,2); //yz
+                V(5,0) = T(0,1); //xy
                 
                 return V; 
             }
@@ -168,31 +208,31 @@ namespace mme {
                     T(i,i) = V(i,0);
                 }
 
-                T(0,1) = V(3,0);
-                T(1,0) = V(3,0);
+                T(0,1) = V(5,0);
+                T(1,0) = V(5,0);
                 T(0,2) = V(4,0);
                 T(2,0) = V(4,0);
-                T(1,2) = V(5,0);
-                T(2,1) = V(5,0);
+                T(1,2) = V(3,0);
+                T(2,1) = V(3,0);
 
                 return T;
             }
 
 
             //real2freq
-            Eigen::Tensor<std::complex<Precision>, 4> r2f(const Eigen::Tensor<Precision, 4>& data_r) const {
-                typedef std::complex<Precision> fft_complex_p;
+            Eigen::Tensor<std::complex<Precision>, 4> r2f(const Eigen::Tensor<Precision, 4, Eigen::ColMajor>& data_r) const {
+                //typedef std::complex<Precision> fft_complex_p;
 
                 int N_in = dims_(0,0) * dims_(1,0) * dims_(2,0);
                 int N_out = dims_(0,0) * dims_(1,0) * (dims_(2,0)/2+1);
 
                 Precision* in = (Precision*)fftw_malloc(sizeof(Precision) * N_in);
-                fftw_complex_p* out = (fftw_complex_p*)fftw_malloc(sizeof(fft_complex_p) * N_out);               
+                std::complex<Precision>* out = (std::complex<Precision>*)fftw_malloc(sizeof(std::complex<Precision>) * N_out);               
                 
                 Eigen::Tensor<std::complex<Precision>, 4> data_f(6,dims_(0,0),dims_(1,0),dims_(2,0)/2+1);
 
                 fftw_plan plan = fftw_plan_dft_r2c_3d(dims_(0,0), dims_(1,0), dims_(2,0),\
-                 in, out, FFTW_ESTIMATE);
+                 reinterpret_cast<fftw_complex*>(in), reinterpret_cast<fftw_complex*>(out), FFTW_ESTIMATE);
 
                 //eigen col-major, fftw row-major => j * dims_(1,0) *dims_(2,0) + k*dims_(2,0) + l
                 for (int i=0; i<6; i++) {
@@ -223,19 +263,19 @@ namespace mme {
             } 
 
             //freq2real
-            Eigen::Tensor<Precision, 4> f2r(const Eigen::Tensor<std::complex<Precision>, 4>& data_f) const {
-                typedef std::complex<Precision> fft_complex_p;
+            Eigen::Tensor<Precision, 4> f2r(const Eigen::Tensor<std::complex<Precision>, 4, Eigen::ColMajor>& data_f) const {
+                //typedef std::complex<Precision> fft_complex_p;
 
                 int N_out = dims_(0,0) * dims_(1,0) * dims_(2,0);
                 int N_in = dims_(0,0) * dims_(1,0) * (dims_(2,0)/2+1);
 
                 Precision* out = (Precision*)fftw_malloc(sizeof(Precision) * N_out);
-                fftw_complex_p* in = (fftw_complex_p*)fftw_malloc(sizeof(fft_complex_p) * N_in);               
+                std::complex<Precision>* in = (std::complex<Precision>*)fftw_malloc(sizeof(std::complex<Precision>) * N_in);               
                 
                 Eigen::Tensor<Precision, 4> data_r(6,dims_(0,0),dims_(1,0),dims_(2,0));
 
                 fftw_plan plan = fftw_plan_dft_c2r_3d(dims_(0,0), dims_(1,0), dims_(2,0),\
-                 in, out, FFTW_ESTIMATE);
+                 reinterpret_cast<fftw_complex*>(in), reinterpret_cast<fftw_complex*>(out), FFTW_ESTIMATE);
 
                 for (int i=0; i<6; i++) {
                     for (int l=0; l<dims_(2,0)/2 + 1; l++) {

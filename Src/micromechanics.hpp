@@ -111,7 +111,7 @@ namespace mme {
                 Eigen::Tensor<Precision, 1> wave_ten(3);
                 Eigen::Tensor<Precision, 2> sig_ten(3,3);
                 Eigen::Array<Precision,3, 1> wave_vec;
-                Eigen::Array<Precision,3, 1> inds;
+                Eigen::Array<int,3, 1> inds;
                 Eigen::Tensor<Precision, 1> stress_dot_wave(3);
 
                 err = 0;
@@ -204,7 +204,7 @@ namespace mme {
                 Eigen::Array<Precision, 6, 1> V;
                 V(0,0) = T(0,0);
                 V(1,0) = T(1,1);
-                V(2,2) = T(2,2);
+                V(2,0) = T(2,2);
                 V(3,0) = T(1,2); //yz
                 V(4,0) = T(0,2); //xz
                 V(5,0) = T(0,1); //xy

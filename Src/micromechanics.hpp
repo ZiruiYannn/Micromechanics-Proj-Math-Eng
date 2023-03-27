@@ -3,6 +3,7 @@
 
 
 #include "Eigen/Dense"
+#include "Eigen/Core"
 #include "unsupported/Eigen/CXX11/Tensor"
 #include <complex>
 #include <cmath>
@@ -33,19 +34,19 @@ namespace mme {
         public:
             micromechanics() = default;
 
-            micromechanics(Eigen::Array<Precision, 6, 1> E, Eigen::Tensor<Precision, 3, Eigen::ColMajor> mat, Eigen::Tensor<Precision, 2, Eigen::ColMajor> c, \
+            micromechanics(Eigen::Array<Precision, 6, 1> E, Eigen::Tensor<int, 3, Eigen::ColMajor> mat, Eigen::Tensor<Precision, 2, Eigen::ColMajor> c, \
             Eigen::Array<Precision, 3, 1> prds, Precision tol, int maxit): strain_0(E), mat_(mat), c_(c), prds_(prds), tol_(tol), \
             maxit_(maxit) {
 
                 //initial dims_
-                auto dims_mat = mat.dimensions();
                 for (int i=0; i<3; i++) {
-                    dims_(i) = dims_mat(i);
+                    dims_(i) = mat.dimension(i);
                 }
 
                 //initial lamda_ref and mu_ref
                 // c is a matrix, the first row is lamda, the second row is mu
-                Eigen::array<int, 1, 1> reduce_dim={0}; 
+                Eigen::Array<int, 1, 1> reduce_dim1;
+                reduce_dim << 0; 
                 Eigen::Tensor<int, 1> max_c = c.maximum(reduce_dim); //store the max value of each row
                 Eigen::Tensor<int, 1> min_c = c.minimum(reduce_dim); //store the min value of each row
 
@@ -53,8 +54,8 @@ namespace mme {
                 mu_ref = (max_c(1) + min_c(1))/2;
 
                 //initial strain_ and stress_
-                Eigen::Tensor<Precision,4> eps(6,dims_mat(0),dims_mat(1),dims_mat(2));
-                Eigen::Tensor<Precision,4> sig(6,dims_mat(0),dims_mat(1),dims_mat(2));
+                Eigen::Tensor<Precision,4> eps(6,dims_(0),dims_(1),dims_(2));
+                Eigen::Tensor<Precision,4> sig(6,dims_(0),dims_(1),dims_(2));
 
                 for (int k = 0; k < dims_(2); k++) {
                     for (int j = 0; j < dims_(1); j++) {
@@ -71,8 +72,7 @@ namespace mme {
                 for (int k = 0; k < dims_(2); k++) {
                     for (int j = 0; j < dims_(1); j++) {
                         for (int i = 0; i < dims_(0); i++) {
-                            for (int l=0; l < 6; l++) {
-                                sig(l,i,j,k) = stressCompute(E, c(0, mat(i , j, k)), c(1, mat(i , j, k)));
+                                array2tensor4d(sig, stressCompute(E, c(0, mat(i , j, k)), c(1, mat(i , j, k))), i, j, k);
                             }
                         }
                     }
@@ -85,29 +85,44 @@ namespace mme {
             ~micromechanics() {}
 
         public:
+            Eigen::Array<Precision, 6, 1> tensor4d2array(const Eigen::Tensor<Precision, 4, Eigen::ColMajor>& t, int ind1, int ind2, int ind3) {
+                Eigen::Array<Precision, 6, 1> a;
+                for (int i=0; i<6; i++) {
+                    a(i) = t(i, ind1, ind2, ind3);
+                }
+
+                return a;
+            }
+
+            void array2tensor4d(Eigen::Tensor<Precision, 4, Eigen::ColMajor>& t, Eigen::Array<Precision, 6, 1> a, int ind1, int ind2, int ind3) {
+                for (int i=0; i<6; i++) {
+                    t(i, ind1, ind2, ind3) = a(i);
+                }
+            }
+
             Eigen::Array<Precision, 6, 1> stressCompute(const Eigen::Array<Precision, 6, 1>& epsVec, Precision lamda, Precision mu) const{
                 Precision sum =  epsVec[0] + epsVec[1] + epsVec[2];
                 Eigen::Array<Precision, 6, 1> sigVec;
                 sigVec = 2*mu*epsVec;
                 for (int i = 0; i<3; i++) {
-                    sig(i,0) += lamda*sum;
+                    sigVec(i,0) += lamda*sum;
                 }
 
-                return sig;
+                return sigVec;
             }
 
             Precision error(const Eigen::Tensor<Precision,4, Eigen::ColMajor>& sig) const{
                 Precision err;
-                Eigen::Tensor<double, 1> wave_ten(3);
-                Eigen::Tensor<double, 2> sig_ten(3,3);
+                Eigen::Tensor<Precision, 1> wave_ten(3);
+                Eigen::Tensor<Precision, 2> sig_ten(3,3);
                 Eigen::Array<Precision,3, 1> wave_vec;
                 Eigen::Array<Precision,3, 1> inds;
-                Precision stress_dot_wave;
+                Eigen::Tensor<Precision, 1> stress_dot_wave;
 
                 err = 0;
-                for (k=0; k<dims_(2); k++) {
-                    for (j=0; j<dims_(1); j++) {
-                        for (i=0; i<dims_(0); i++) {
+                for (int k=0; k<dims_(2); k++) {
+                    for (int j=0; j<dims_(1); j++) {
+                        for (int i=0; i<dims_(0); i++) {
                             inds(0) = i;
                             inds(1) = j;
                             inds(2) = k;
@@ -115,7 +130,7 @@ namespace mme {
                             wave_ten(0) = wave_vec(0);
                             wave_ten(1) = wave_vec(1);
                             wave_ten(2) = wave_vec(2);
-                            sig_ten = vec2ten(sig.chip({i,j,k},1));
+                            sig_ten = vec2ten(tensor4d2array(sig, i, j, k));
                             stress_dot_wave = sig_ten.contract(wave_ten, Eigen::array<Eigen::IndexPair<int>, 1>{{Eigen::IndexPair<int>(1, 0)}});
                             err += stress_dot_wave(0) * stress_dot_wave(0) + stress_dot_wave(1) * stress_dot_wave(1) + stress_dot_wave(2) * stress_dot_wave(2);
                         }
@@ -136,7 +151,7 @@ namespace mme {
             Eigen::Array<Precision,3, 1> waveVec(const Eigen::Array<int, 3, 1>& inds) const{
                 Eigen::Array<Precision,3, 1> xi;
                 for(int i=0; i<3; i++) {
-                    int bound = dims[i] % 2 == 0 ? dims[i] / 2 - 1 : dims[i] / 2;
+                    int bound = dims_[i] % 2 == 0 ? dims_[i] / 2 - 1 : dims_[i] / 2;
                     if (inds(i) <= bound) {
                         xi(i) = inds(i) /  prds_(i);
                     } 
@@ -158,10 +173,10 @@ namespace mme {
                 coef_b = lamda_ref + mu_ref;
                 coef_b /= (mu_ref * (lamda_ref + 2*mu_ref)) * xi_square * xi_square;
 
-                for (j=0 ; j<3; j++) {
-                    for (i=0; i<3; i++) {
-                        for (h=0; h<3; h++) {
-                            for (k=0; k<3; k++) {
+                for (int j=0 ; j<3; j++) {
+                    for (int i=0; i<3; i++) {
+                        for (int h=0; h<3; h++) {
+                            for (int k=0; k<3; k++) {
                                 if (k == i) {
                                     gam(k, h ,i, j) += xi(h, 0) * xi(j, 0);                            
                                 }
@@ -174,8 +189,8 @@ namespace mme {
                                 if (h == j) {
                                     gam(k, h ,i, j) += xi(k, 0) * xi(i, 0);                            
                                 }
-                                gam(k ,h, i ,j) /= a; 
-                                gam(k, h ,i, j) -= b * xi(h, 0) * xi(j, 0) * xi(k, 0) * xi(i, 0);
+                                gam(k ,h, i ,j) /= coef_a; 
+                                gam(k, h ,i, j) -= coef_b * xi(h, 0) * xi(j, 0) * xi(k, 0) * xi(i, 0);
                             }
                         }
                     }
@@ -232,7 +247,7 @@ namespace mme {
                 Eigen::Tensor<std::complex<Precision>, 4> data_f(6,dims_(0,0),dims_(1,0),dims_(2,0)/2+1);
 
                 fftw_plan plan = fftw_plan_dft_r2c_3d(dims_(0,0), dims_(1,0), dims_(2,0),\
-                 reinterpret_cast<fftw_complex*>(in), reinterpret_cast<fftw_complex*>(out), FFTW_ESTIMATE);
+                 in, reinterpret_cast<fftw_complex*>(out), FFTW_ESTIMATE);
 
                 //eigen col-major, fftw row-major => j * dims_(1,0) *dims_(2,0) + k*dims_(2,0) + l
                 for (int i=0; i<6; i++) {
@@ -275,7 +290,7 @@ namespace mme {
                 Eigen::Tensor<Precision, 4> data_r(6,dims_(0,0),dims_(1,0),dims_(2,0));
 
                 fftw_plan plan = fftw_plan_dft_c2r_3d(dims_(0,0), dims_(1,0), dims_(2,0),\
-                 reinterpret_cast<fftw_complex*>(in), reinterpret_cast<fftw_complex*>(out), FFTW_ESTIMATE);
+                 reinterpret_cast<fftw_complex*>(in), out, FFTW_ESTIMATE);
 
                 for (int i=0; i<6; i++) {
                     for (int l=0; l<dims_(2,0)/2 + 1; l++) {
@@ -307,17 +322,19 @@ namespace mme {
         public:
             //do the iteration and compute stress_ and strain_
             void iteration() {
-                Eigen::Array<Precision, 6, 1> tau()
+                Eigen::Array<Precision, 6, 1> tau;
 
                 int count = 0;
                 Precision err;
                 err = error(stress_);
 
-                while (err > tol && count < maxit_) {
+                while (err > tol_ && count < maxit_) {
                     
                 }
 
-                if (count == maxit_)
+                if (count == maxit_) {
+
+                }
 
 
             }
@@ -326,7 +343,7 @@ namespace mme {
                 return stress_;
             }
 
-            Eigen::Tensor<Precision, 4> getStress() const {
+            Eigen::Tensor<Precision, 4> getStrain() const {
                 return strain_;
             }
 

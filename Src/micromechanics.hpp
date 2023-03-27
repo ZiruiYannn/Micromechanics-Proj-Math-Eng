@@ -18,7 +18,7 @@ namespace mme {
             Eigen::Array<int,3, 1> dims_;
             
             Eigen::Array<Precision, 6, 1> strain_0;
-            Eigen::Tensor<Precision, 3> mat_;
+            Eigen::Tensor<int, 3> mat_;
             Eigen::Tensor<Precision, 2> c_;
             Precision lamda_ref;
             Precision mu_ref;
@@ -329,7 +329,9 @@ namespace mme {
                 Eigen::Tensor<Precision, 4> gam(2,2,2,2);
                 Eigen::Tensor<Precision, 2> temp(3,3);
                 Eigen::Array<Precision, 3, 1> xi;
-                Eigen::Array<int, 3, 1> inds
+                Eigen::Array<int, 3, 1> inds;
+                // Eigen::Tensor<Precision, 2> minus(3, 3);
+                // minus.setConstant(-1.0);
 
                 int count = 0;
                 Precision err;
@@ -339,7 +341,7 @@ namespace mme {
                     for (int k=0; k < dims_(2,0); k++) {
                         for (int j=0; j < dims_(1,0); j++) {
                             for (int i=0; i < dims_(0,0); i++) {
-                                array2tensor4d(c0_eps, stressCompute(tensor4d2array(strain_, i, j, k)), i, j, k);
+                                array2tensor4d(c0_eps, stressCompute(tensor4d2array(strain_, i, j, k), c_(0, mat_(i , j, k)), c_(1, mat_(i , j, k))), i, j, k);
                             }
                         }
                     }
@@ -354,8 +356,8 @@ namespace mme {
                                 inds(2) = k;
                                 xi = waveVec(inds);
                                 gam = greenOp(xi);
-                                temp = -greenOp.contract(tensor4d2array(tau, i, j, k), Eigen::array<Eigen::IndexPair<int>, 2>{Eigen::IndexPair<int>(2, 0), Eigen::IndexPair<int>(3, 1)})
-                                array2tensor4d(eps_f, temp, i, j, k); 
+                                temp = -gam.contract(tensor4d2array(tau, i, j, k), Eigen::array<Eigen::IndexPair<int>, 2>{Eigen::IndexPair<int>(2, 0), Eigen::IndexPair<int>(3, 1)});
+                                array2tensor4d(eps_f, ten2vec(temp), i, j, k); 
                             }
                         }
                     }
@@ -364,7 +366,7 @@ namespace mme {
                     for (int k = 0; k < dims_(2); k++) {
                         for (int j = 0; j < dims_(1); j++) {
                             for (int i = 0; i < dims_(0); i++) {
-                                array2tensor4d(stress_, stressCompute(tensor4d2array(strain_, i, j, k), c(0, mat(i , j, k)), c(1, mat(i , j, k))), i, j, k);
+                                array2tensor4d(stress_, stressCompute(tensor4d2array(strain_, i, j, k), c_(0, mat_(i , j, k)), c_(1, mat_(i , j, k))), i, j, k);
                             }
                         }
                     }

@@ -3,6 +3,7 @@
 
 #include "Eigen/Core"
 #include "Eigen/Dense"
+#include "Eigen/Core"
 #include "unsupported/Eigen/CXX11/Tensor"
 #include <complex>
 #include <cmath>
@@ -71,9 +72,7 @@ namespace mme {
                 for (int k = 0; k < dims_(2); k++) {
                     for (int j = 0; j < dims_(1); j++) {
                         for (int i = 0; i < dims_(0); i++) {
-                            for (int l=0; l < 6; l++) {
-                                sig(l,i,j,k) = stressCompute(E, c(0, mat(i , j, k)), c(1, mat(i , j, k)));
-                            }
+                                array2tensor4d(sig, stressCompute(E, c(0, mat(i , j, k)), c(1, mat(i , j, k))), i, j, k);
                         }
                     }
                 }
@@ -85,6 +84,21 @@ namespace mme {
             ~micromechanics() {}
 
         public:
+            Eigen::Array<Precision, 6, 1> tensor4d2array(const Eigen::Tensor<Precision, 4, Eigen::ColMajor>& t, int ind1, int ind2, int ind3) const{
+                Eigen::Array<Precision, 6, 1> a;
+                for (int i=0; i<6; i++) {
+                    a(i) = t(i, ind1, ind2, ind3);
+                }
+
+                return a;
+            }
+
+            void array2tensor4d(Eigen::Tensor<Precision, 4, Eigen::ColMajor>& t, Eigen::Array<Precision, 6, 1> a, int ind1, int ind2, int ind3) {
+                for (int i=0; i<6; i++) {
+                    t(i, ind1, ind2, ind3) = a(i);
+                }
+            }
+
             Eigen::Array<Precision, 6, 1> stressCompute(const Eigen::Array<Precision, 6, 1>& epsVec, Precision lamda, Precision mu) const{
                 Precision sum =  epsVec[0] + epsVec[1] + epsVec[2];
                 Eigen::Array<Precision, 6, 1> sigVec;
@@ -115,7 +129,7 @@ namespace mme {
                             wave_ten(0) = wave_vec(0);
                             wave_ten(1) = wave_vec(1);
                             wave_ten(2) = wave_vec(2);
-                            sig_ten = vec2ten(sig.chip({i,j,k},1));
+                            sig_ten = vec2ten(tensor4d2array(sig, i, j, k));
                             stress_dot_wave = sig_ten.contract(wave_ten, Eigen::array<Eigen::IndexPair<int>, 1>{{Eigen::IndexPair<int>(1, 0)}});
                             err += stress_dot_wave(0) * stress_dot_wave(0) + stress_dot_wave(1) * stress_dot_wave(1) + stress_dot_wave(2) * stress_dot_wave(2);
                         }

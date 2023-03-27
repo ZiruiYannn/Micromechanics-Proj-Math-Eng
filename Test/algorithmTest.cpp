@@ -18,7 +18,7 @@ class FunctionTest: public ::testing::Test {
         prds << 2.0, 3.0, 4.0;
         tol = 1e-4;
         maxit = 30;
-        m = new mme::micromechanics<double>(E, mat, c, prds, tol, maxit);
+        mme::micromechanics<double> m(E, mat, c, prds, tol, maxit);
     }
 
     Eigen::Array<double, 6, 1> E;

@@ -26,26 +26,26 @@ add_subdirectory(Lib/googletest-main)
 
 enable_testing()
 
-# add_executable(IOTest Test/IO_test.cpp)
+add_executable(IOTest Test/IO_test.cpp)
 
-# target_link_libraries(IOTest PUBLIC GTest::gtest_main)
-# target_link_libraries(IOTest PUBLIC Eigen3::Eigen)
-# target_include_directories(IOTest PRIVATE Src)
+target_link_libraries(IOTest PUBLIC GTest::gtest_main)
+target_link_libraries(IOTest PUBLIC Eigen3::Eigen)
+target_include_directories(IOTest PRIVATE Src)
 
-add_executable(algorithmTest Test/algorithmTest.cpp)
+# add_executable(algorithmTest Test/algorithmTest.cpp)
 
-target_include_directories(algorithmTest PRIVATE Lib/fftw-3.3.10/api)
-target_link_libraries(algorithmTest PUBLIC fftw3)
-target_link_libraries(algorithmTest PUBLIC Eigen3::Eigen)
-target_link_libraries(algorithmTest PUBLIC GTest::gtest_main)
-target_include_directories(algorithmTest PRIVATE Src)
+# target_include_directories(algorithmTest PRIVATE Lib/fftw-3.3.10/api)
+# target_link_libraries(algorithmTest PUBLIC fftw3)
+# target_link_libraries(algorithmTest PUBLIC Eigen3::Eigen)
+# target_link_libraries(algorithmTest PUBLIC GTest::gtest_main)
+# target_include_directories(algorithmTest PRIVATE Src)
 
 include(GoogleTest)
 
 # gtest_add_tests(TARGET IOTest)
 # gtest_add_tests(TARGET algorithmTest)
-# gtest_discover_tests(IOTest)
-gtest_discover_tests(algorithmTest)
+gtest_discover_tests(IOTest)
+# gtest_discover_tests(algorithmTest)
 
 
 

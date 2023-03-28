@@ -18,8 +18,8 @@ test:
   stage: test
   script:
     - cd Build
-    # - ./IOTest 
-    - ./algorithmTest
+    - ./IOTest 
+    # - ./algorithmTest
   artifacts:
     paths:
       - Output/test.out

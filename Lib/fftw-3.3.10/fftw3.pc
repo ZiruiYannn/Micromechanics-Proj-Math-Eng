@@ -1,0 +1,11 @@
+prefix=C:/Program Files (x86)/PME
+exec_prefix=C:/Program Files (x86)/PME
+libdir=C:/Program Files (x86)/PME/lib
+includedir=C:/Program Files (x86)/PME/include
+
+Name: FFTW
+Description: fast Fourier transform library
+Version: 3.3.9
+Libs: -L${libdir} -lfftw3 
+Libs.private: -lm
+Cflags: -I${includedir}

@@ -303,7 +303,7 @@ namespace mme {
                     for (int l=0; l<dims_(2,0); l++) {
                         for (int k=0; k<dims_(1,0); k++) {
                             for (int j=0; j<dims_(0,0); j++) {
-                                data_r(i,j,k,l) = out[j * dims_(1,0) *dims_(2,0) + k*dims_(2,0) + l];
+                                data_r(i,j,k,l) = out[j * dims_(1,0) *dims_(2,0) + k*dims_(2,0) + l] / N_out;
                             }
                         }
                     }

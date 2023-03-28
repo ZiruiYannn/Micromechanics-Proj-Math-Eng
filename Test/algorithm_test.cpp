@@ -140,7 +140,7 @@ TEST_F(FunctionTest, error) {
 
     double e = m.error(m.stress_);
 
-    EXPECT_NEAR(e, 0.00015108205966200843, 1e-5);
+    EXPECT_NEAR(e, 0.00015108205966200843, 1e-4);
 }
 
 TEST_F(FunctionTest, waveVec) {

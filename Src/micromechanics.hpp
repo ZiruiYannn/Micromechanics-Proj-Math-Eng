@@ -116,7 +116,6 @@ namespace mme {
                 Eigen::Tensor<std::complex<Precision>, 1> stress_dot_wave(3);
 
                 sig_freq = r2f(sig);
-                wave_vec.setZero();
                 err = 0;
                 for (int k=0; k<dims_(2)/2+1; k++) {
                     for (int j=0; j<dims_(1); j++) {
@@ -125,9 +124,9 @@ namespace mme {
                             inds(1) = j;
                             inds(2) = k;
                             wave_vec = waveVec(inds);
-                            wave_ten(0).real(wave_vec(0));
-                            wave_ten(1).real(wave_vec(1));
-                            wave_ten(2).real(wave_vec(2));
+                            wave_ten(0) = wave_vec(0);
+                            wave_ten(1) = wave_vec(1);
+                            wave_ten(2) = wave_vec(2);
                             sig_ten = vec2ten(tensor4d2array(sig_freq, i, j, k));
                             stress_dot_wave = sig_ten.contract(wave_ten, Eigen::array<Eigen::IndexPair<int>, 1>{Eigen::IndexPair<int>(1, 0)});
                             err += std::norm(stress_dot_wave(0)) + std::norm(stress_dot_wave(1)) + std::norm(stress_dot_wave(2));

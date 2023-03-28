@@ -34,17 +34,18 @@ target_include_directories(IOTest PRIVATE Src)
 
 add_executable(algorithmTest Test/algorithmTest.cpp)
 
-target_link_libraries(algorithmTest PUBLIC GTest::gtest_main)
-target_link_libraries(algorithmTest PUBLIC Eigen3::Eigen)
 target_include_directories(algorithmTest PRIVATE Lib/fftw-3.3.10/api)
 target_link_libraries(algorithmTest PUBLIC fftw3)
+target_link_libraries(algorithmTest PUBLIC Eigen3::Eigen)
+target_link_libraries(algorithmTest PUBLIC GTest::gtest_main)
 target_include_directories(algorithmTest PRIVATE Src)
 
 include(GoogleTest)
 
+# gtest_add_tests(TARGET IOTest)
+# gtest_add_tests(TARGET algorithmTest)
 gtest_discover_tests(IOTest)
 gtest_discover_tests(algorithmTest)
-
 
 
 

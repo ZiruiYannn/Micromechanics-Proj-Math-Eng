@@ -1,12 +1,11 @@
 #ifndef MICROMECHANICS_HPP_
 #define MICROMECHANICS_HPP_
 
-#include "Eigen/Core"
-#include "Eigen/Dense"
-#include "Eigen/Core"
-#include "unsupported/Eigen/CXX11/Tensor"
 #include <complex>
 #include <cmath>
+#include "Eigen/Core"
+#include "Eigen/Dense"
+#include "unsupported/Eigen/CXX11/Tensor"
 #include "fftw3.h"
 
 
@@ -240,7 +239,7 @@ namespace mme {
                 int N_out = dims_(0,0) * dims_(1,0) * (dims_(2,0)/2+1);
 
                 Precision* in = (Precision*)fftw_malloc(sizeof(Precision) * N_in);
-                std::complex<Precision>* out = (std::complex<Precision>*)fftw_malloc(sizeof(std::complex<Precision>) * N_out);               
+                std::complex<Precision>* out = (std::complex<Precision>*)fftw_malloc(sizeof(std::complex<Precision>) * N_out);
                 
                 Eigen::Tensor<std::complex<Precision>, 4> data_f(6,dims_(0,0),dims_(1,0),dims_(2,0)/2+1);
 

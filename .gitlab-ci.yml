@@ -20,9 +20,21 @@ test:
     - cd Build
     - ./IOTest 
     - ./algorithmTest
+  artifacts:
+    paths:
+      - Output/test.out
 
-
-# deploy:
-#   stage: deploy
-#   script: 
-#     - ...
+# test run visualization.py
+visualization:
+  stage: test
+  image: python:latest
+  before_script: 
+    - pip install plotly==5.13.1
+    - pip install kaleido
+    - pip install packaging
+  script: 
+    - cd Src
+    - python visualization.py "../Output/test.out" "../Output/test.png"
+  artifacts:
+    paths:
+      - Output/test.png

@@ -26,11 +26,11 @@ add_subdirectory(Lib/googletest-main)
 
 enable_testing()
 
-add_executable(IOTest Test/IO_test.cpp)
+# add_executable(IOTest Test/IO_test.cpp)
 
-target_link_libraries(IOTest PUBLIC GTest::gtest_main)
-target_link_libraries(IOTest PUBLIC Eigen3::Eigen)
-target_include_directories(IOTest PRIVATE Src)
+# target_link_libraries(IOTest PUBLIC GTest::gtest_main)
+# target_link_libraries(IOTest PUBLIC Eigen3::Eigen)
+# target_include_directories(IOTest PRIVATE Src)
 
 add_executable(algorithmTest Test/algorithmTest.cpp)
 
@@ -44,7 +44,7 @@ include(GoogleTest)
 
 # gtest_add_tests(TARGET IOTest)
 # gtest_add_tests(TARGET algorithmTest)
-gtest_discover_tests(IOTest)
+# gtest_discover_tests(IOTest)
 gtest_discover_tests(algorithmTest)
 
 

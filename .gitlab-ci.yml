@@ -11,7 +11,7 @@ build:
   artifacts:
     paths:
       - Build/IOTest
-      # - Build/algorithmTest
+      - Build/algorithmTest
 
 # run tests using the binary built before
 test:
@@ -19,7 +19,7 @@ test:
   script:
     - cd Build
     - ./IOTest 
-    # - ./algorithmTest
+    - ./algorithmTest
   artifacts:
     paths:
       - Output/test.out

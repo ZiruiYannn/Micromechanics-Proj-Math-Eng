@@ -327,14 +327,20 @@ namespace mme {
             void iteration() {
                 Eigen::Tensor<Precision, 4> tau(6,dims_(0,0),dims_(1,0),dims_(2,0));
                 Eigen::Tensor<std::complex<Precision>, 4> tau_f(6,dims_(0,0),dims_(1,0),dims_(2,0)/2 + 1);
-                Eigen::Tensor<Precision, 4> c0_eps(6,dims_(0,0),dims_(1,0),dims_(2,0));
+                // Eigen::Tensor<Precision, 4> c0_eps(6,dims_(0,0),dims_(1,0),dims_(2,0));
                 Eigen::Tensor<std::complex<Precision>, 4> eps_f(6,dims_(0,0),dims_(1,0),dims_(2,0)/2 + 1);
                 Eigen::Tensor<Precision, 4> gam(2,2,2,2);
                 Eigen::Tensor<std::complex<Precision>, 2> temp(3,3);
                 Eigen::Array<Precision, 3, 1> xi;
                 Eigen::Array<int, 3, 1> inds;
+                Eigen::Array<std::complex<Precision>, 6, 1> scaled_strain_0;
                 // Eigen::Tensor<Precision, 2> minus(3, 3);
                 // minus.setConstant(-1.0);
+
+                scaled_strain_0.setZero();
+                for (int i = 0; i < 6; i++) {
+                    scaled_strain_0(i).real(strain_0(i)*dims_(0)*dims_(1)*dims_(2)); 
+                }
 
                 int count = 0;
                 Precision err;
@@ -344,11 +350,12 @@ namespace mme {
                     for (int k=0; k < dims_(2,0); k++) {
                         for (int j=0; j < dims_(1,0); j++) {
                             for (int i=0; i < dims_(0,0); i++) {
-                                array2tensor4d(c0_eps, stressCompute(tensor4d2array(strain_, i, j, k), c_(0, mat_(i , j, k)), c_(1, mat_(i , j, k))), i, j, k);
+                                array2tensor4d(tau, polarization(tensor4d2array(stress_, i, j, k), tensor4d2array(strain_, i, j, k)), i, j, k);
+                                // array2tensor4d(c0_eps, stressCompute(tensor4d2array(strain_, i, j, k), c_(0, mat_(i , j, k)), c_(1, mat_(i , j, k))), i, j, k);
                             }
                         }
                     }
-                    tau = stress_ -  c0_eps;
+                    // tau = stress_ -  c0_eps;
                     tau_f = r2f(tau);
                     //stress_dot_wave = sig_ten.contract(wave_ten, Eigen::array<Eigen::IndexPair<int>, 1>{{Eigen::IndexPair<int>(1, 0)}});
                     for (int k=0; k < dims_(2,0)/2 + 1; k++) {
@@ -364,6 +371,8 @@ namespace mme {
                             }
                         }
                     }
+                    array2tensor4d(eps_f, scaled_strain_0, 0, 0, 0);
+
                     strain_ = f2r(eps_f);
 
                     for (int k = 0; k < dims_(2); k++) {
@@ -378,13 +387,9 @@ namespace mme {
                     err = error(stress_);
                 }
 
-                
-
                 if (count >= maxit_) {
                     reach_maxit = true;
                 }
-
-
             }
 
 

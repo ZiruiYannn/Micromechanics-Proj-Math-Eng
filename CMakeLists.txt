@@ -10,7 +10,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 ### Libraries
 
 add_subdirectory(Lib/eigen-3.4.0)
-add_subdirectory(Lib/fftw-3.3.10)
+# add_subdirectory(Lib/fftw-3.3.10)
 add_subdirectory(Lib/googletest-main)
 
 

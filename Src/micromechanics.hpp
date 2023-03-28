@@ -79,9 +79,9 @@ namespace mme {
 
             ~micromechanics() {}
 
-        public:
-            Eigen::Array<Precision, 6, 1> tensor4d2array(const Eigen::Tensor<Precision, 4, Eigen::ColMajor>& t, int ind1, int ind2, int ind3) const{
-                Eigen::Array<Precision, 6, 1> a;
+        template<typename P>
+            Eigen::Array<P, 6, 1> tensor4d2array(const Eigen::Tensor<P, 4, Eigen::ColMajor>& t, int ind1, int ind2, int ind3) const{
+                Eigen::Array<P, 6, 1> a;
                 for (int i=0; i<6; i++) {
                     a(i) = t(i, ind1, ind2, ind3);
                 }
@@ -89,7 +89,8 @@ namespace mme {
                 return a;
             }
 
-            void array2tensor4d(Eigen::Tensor<Precision, 4, Eigen::ColMajor>& t, Eigen::Array<Precision, 6, 1> a, int ind1, int ind2, int ind3) {
+            template<typename P>
+            void array2tensor4d(Eigen::Tensor<P, 4, Eigen::ColMajor>& t, Eigen::Array<P, 6, 1> a, int ind1, int ind2, int ind3) {
                 for (int i=0; i<6; i++) {
                     t(i, ind1, ind2, ind3) = a(i);
                 }
@@ -200,8 +201,9 @@ namespace mme {
                 return tauVec;
             }
 
-            Eigen::Array<Precision, 6, 1> ten2vec(const Eigen::Tensor<Precision, 2, Eigen::ColMajor>& T) const{
-                Eigen::Array<Precision, 6, 1> V;
+            template<typename P>
+            Eigen::Array<P, 6, 1> ten2vec(const Eigen::Tensor<P, 2, Eigen::ColMajor>& T) const{
+                Eigen::Array<P, 6, 1> V;
                 V(0,0) = T(0,0);
                 V(1,0) = T(1,1);
                 V(2,0) = T(2,2);
@@ -212,8 +214,9 @@ namespace mme {
                 return V; 
             }
 
-            Eigen::Tensor<Precision, 2> vec2ten(const Eigen::Array<Precision, 6, 1>& V) const{
-                Eigen::Tensor<Precision, 2> T(3,3);
+            template<typename P>
+            Eigen::Tensor<P, 2> vec2ten(const Eigen::Array<P, 6, 1>& V) const{
+                Eigen::Tensor<P, 2> T(3,3);
                 for (int i=0; i<3; i++) {
                     T(i,i) = V(i,0);
                 }
@@ -318,11 +321,11 @@ namespace mme {
             //do the iteration and compute stress_ and strain_
             void iteration() {
                 Eigen::Tensor<Precision, 4> tau(6,dims_(0,0),dims_(1,0),dims_(2,0));
-                Eigen::Tensor<Precision, 4> tau_f(6,dims_(0,0),dims_(1,0),dims_(2,0)/2 + 1);
+                Eigen::Tensor<std::complex<Precision>, 4> tau_f(6,dims_(0,0),dims_(1,0),dims_(2,0)/2 + 1);
                 Eigen::Tensor<Precision, 4> c0_eps(6,dims_(0,0),dims_(1,0),dims_(2,0));
-                Eigen::Tensor<Precision, 4> eps_f(6,dims_(0,0),dims_(1,0),dims_(2,0)/2 + 1);
+                Eigen::Tensor<std::complex<Precision>, 4> eps_f(6,dims_(0,0),dims_(1,0),dims_(2,0)/2 + 1);
                 Eigen::Tensor<Precision, 4> gam(2,2,2,2);
-                Eigen::Tensor<Precision, 2> temp(3,3);
+                Eigen::Tensor<std::complex<Precision>, 2> temp(3,3);
                 Eigen::Array<Precision, 3, 1> xi;
                 Eigen::Array<int, 3, 1> inds;
                 // Eigen::Tensor<Precision, 2> minus(3, 3);

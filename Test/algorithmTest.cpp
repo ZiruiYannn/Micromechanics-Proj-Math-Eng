@@ -12,9 +12,6 @@ class FunctionTest: public ::testing::Test {
         mat.setConstant(0);
         c << 1.0, 3.0, 
              2.0, 4.0;
-        // c = Eigen::Tensor<double, 2>(2, 2);
-        // c(0, 0) = 1.0; c(0, 1) = 3.0;
-        // c(1, 0) = 2.0; c(1, 1) = 4.0;
         prds << 2.0, 3.0, 4.0;
         tol = 1e-4;
         maxit = 30;
@@ -23,7 +20,6 @@ class FunctionTest: public ::testing::Test {
     Eigen::Array<double, 6, 1> E;
     Eigen::Tensor<int, 3> mat;
     Eigen::Array<double, 2, 2> c;
-    // Eigen::Tensor<double,2> c;
     Eigen::Array<double, 3, 1> prds;
     double tol;
     int maxit;
@@ -192,7 +188,9 @@ TEST_F(FunctionTest, greenOp) {
     EXPECT_NEAR(gam(2, 2, 2, 2), 0.0446452566514378, 1e-5);
     EXPECT_NEAR(gam(0, 1, 2, 0), -0.007793603869927439, 1e-5);
 
-    // test for -gam
+    Eigen::Tensor<double, 4> temp = -gam;
+
+    EXPECT_NEAR(gam(0, 0, 0, 0), -0.12416017199677509, 1e-5);
 }
 
 TEST_F(FunctionTest, polarization) {
@@ -246,75 +244,75 @@ TEST_F(FunctionTest, vec2ten) {
     EXPECT_DOUBLE_EQ(t(0, 1), 6.0); EXPECT_DOUBLE_EQ(t(1, 0), 6.0);
 }
 
-// TEST_F(FunctionTest, r2f) {
-//     mme::micromechanics<double> m(E, mat, c, prds, tol, maxit);
+TEST_F(FunctionTest, r2f) {
+    mme::micromechanics<double> m(E, mat, c, prds, tol, maxit);
 
-//     for (int k = 2; k < 4; k++) {
-//         for (int j = 0; j < 3; j++) {
-//             for (int i = 0; i < 2; i++) {
-//                 m.strain_(0, i, j, k) = 0.0;
-//                 m.strain_(1, i, j, k) = 0.0;
-//                 m.strain_(2, i, j, k) = 0.0;
-//                 m.strain_(3, i, j, k) = 0.2;
-//                 m.strain_(4, i, j, k) = 0.3;
-//                 m.strain_(5, i, j, k) = 0.4;
-//             }
-//         }
-//     }
+    for (int k = 2; k < 4; k++) {
+        for (int j = 0; j < 3; j++) {
+            for (int i = 0; i < 2; i++) {
+                m.strain_(0, i, j, k) = 0.0;
+                m.strain_(1, i, j, k) = 0.0;
+                m.strain_(2, i, j, k) = 0.0;
+                m.strain_(3, i, j, k) = 0.2;
+                m.strain_(4, i, j, k) = 0.3;
+                m.strain_(5, i, j, k) = 0.4;
+            }
+        }
+    }
 
-//     Eigen::Tensor<std::complex<double>, 4> strain_freq(6, 2, 3, 3);
-//     strain_freq = m.r2f(m.strain_);
+    Eigen::Tensor<std::complex<double>, 4> strain_freq(6, 2, 3, 3);
+    strain_freq = m.r2f(m.strain_);
 
-//     EXPECT_DOUBLE_EQ(std::real(strain_freq(0, 0, 0, 0)), 12.0); EXPECT_DOUBLE_EQ(std::imag(strain_freq(0, 0, 0, 0)), 0.0);
-//     EXPECT_DOUBLE_EQ(std::real(strain_freq(1, 0, 0, 0)), -6.0); EXPECT_DOUBLE_EQ(std::imag(strain_freq(1, 0, 0, 0)), 0.0);
-//     EXPECT_DOUBLE_EQ(std::real(strain_freq(2, 0, 0, 0)), -6.0); EXPECT_DOUBLE_EQ(std::imag(strain_freq(2, 0, 0, 0)), 0.0);
-//     EXPECT_DOUBLE_EQ(std::real(strain_freq(3, 0, 0, 0)), 2.4); EXPECT_DOUBLE_EQ(std::imag(strain_freq(3, 0, 0, 0)), 0.0);
-//     EXPECT_DOUBLE_EQ(std::real(strain_freq(4, 0, 0, 0)), 3.6); EXPECT_DOUBLE_EQ(std::imag(strain_freq(4, 0, 0, 0)), 0.0);
-//     EXPECT_DOUBLE_EQ(std::real(strain_freq(5, 0, 0, 0)), 4.8); EXPECT_DOUBLE_EQ(std::imag(strain_freq(5, 0, 0, 0)), 0.0);
+    EXPECT_DOUBLE_EQ(std::real(strain_freq(0, 0, 0, 0)), 12.0); EXPECT_DOUBLE_EQ(std::imag(strain_freq(0, 0, 0, 0)), 0.0);
+    EXPECT_DOUBLE_EQ(std::real(strain_freq(1, 0, 0, 0)), -6.0); EXPECT_DOUBLE_EQ(std::imag(strain_freq(1, 0, 0, 0)), 0.0);
+    EXPECT_DOUBLE_EQ(std::real(strain_freq(2, 0, 0, 0)), -6.0); EXPECT_DOUBLE_EQ(std::imag(strain_freq(2, 0, 0, 0)), 0.0);
+    EXPECT_DOUBLE_EQ(std::real(strain_freq(3, 0, 0, 0)), 2.4); EXPECT_DOUBLE_EQ(std::imag(strain_freq(3, 0, 0, 0)), 0.0);
+    EXPECT_DOUBLE_EQ(std::real(strain_freq(4, 0, 0, 0)), 3.6); EXPECT_DOUBLE_EQ(std::imag(strain_freq(4, 0, 0, 0)), 0.0);
+    EXPECT_DOUBLE_EQ(std::real(strain_freq(5, 0, 0, 0)), 4.8); EXPECT_DOUBLE_EQ(std::imag(strain_freq(5, 0, 0, 0)), 0.0);
 
-//     EXPECT_DOUBLE_EQ(std::real(strain_freq(0, 0, 0, 1)), 6.0); EXPECT_DOUBLE_EQ(std::imag(strain_freq(0, 0, 0, 1)), -6.0);
-//     EXPECT_DOUBLE_EQ(std::real(strain_freq(1, 0, 0, 1)), -3.0); EXPECT_DOUBLE_EQ(std::imag(strain_freq(1, 0, 0, 1)), 3.0);
-//     EXPECT_DOUBLE_EQ(std::real(strain_freq(2, 0, 0, 1)), -3.0); EXPECT_DOUBLE_EQ(std::imag(strain_freq(2, 0, 0, 1)), 3.0);
-//     EXPECT_DOUBLE_EQ(std::real(strain_freq(3, 0, 0, 1)), -1.2); EXPECT_DOUBLE_EQ(std::imag(strain_freq(3, 0, 0, 1)), 1.2);
-//     EXPECT_DOUBLE_EQ(std::real(strain_freq(4, 0, 0, 1)), -1.8); EXPECT_DOUBLE_EQ(std::imag(strain_freq(4, 0, 0, 1)), 1.8);
-//     EXPECT_DOUBLE_EQ(std::real(strain_freq(5, 0, 0, 1)), -2.4); EXPECT_DOUBLE_EQ(std::imag(strain_freq(5, 0, 0, 1)), 2.4);
-// }
+    EXPECT_DOUBLE_EQ(std::real(strain_freq(0, 0, 0, 1)), 6.0); EXPECT_DOUBLE_EQ(std::imag(strain_freq(0, 0, 0, 1)), -6.0);
+    EXPECT_DOUBLE_EQ(std::real(strain_freq(1, 0, 0, 1)), -3.0); EXPECT_DOUBLE_EQ(std::imag(strain_freq(1, 0, 0, 1)), 3.0);
+    EXPECT_DOUBLE_EQ(std::real(strain_freq(2, 0, 0, 1)), -3.0); EXPECT_DOUBLE_EQ(std::imag(strain_freq(2, 0, 0, 1)), 3.0);
+    EXPECT_DOUBLE_EQ(std::real(strain_freq(3, 0, 0, 1)), -1.2); EXPECT_DOUBLE_EQ(std::imag(strain_freq(3, 0, 0, 1)), 1.2);
+    EXPECT_DOUBLE_EQ(std::real(strain_freq(4, 0, 0, 1)), -1.8); EXPECT_DOUBLE_EQ(std::imag(strain_freq(4, 0, 0, 1)), 1.8);
+    EXPECT_DOUBLE_EQ(std::real(strain_freq(5, 0, 0, 1)), -2.4); EXPECT_DOUBLE_EQ(std::imag(strain_freq(5, 0, 0, 1)), 2.4);
+}
 
-// TEST_F(FunctionTest, f2r) {
-//     mme::micromechanics<double> m(E, mat, c, prds, tol, maxit);
+TEST_F(FunctionTest, f2r) {
+    mme::micromechanics<double> m(E, mat, c, prds, tol, maxit);
 
-//     Eigen::Tensor<std::complex<double>, 4> strain_freq(6, 2, 3, 3);
-//     strain_freq.setConstant(0.0);
-//     strain_freq(0, 0, 0, 0).real(-10.8);
-//     strain_freq(1, 0, 0, 0).real(-21.6);
-//     strain_freq(2, 0, 0, 0).real(-32.4);
-//     strain_freq(3, 0, 0, 0).real(-43.2);
-//     strain_freq(4, 0, 0, 0).real(-54.0);
-//     strain_freq(5, 0, 0, 0).real(-64.8);
-//     strain_freq(0, 0, 0, 1).real(6.6); strain_freq(0, 0, 0, 1).imag(-6.6);
-//     strain_freq(1, 0, 0, 1).real(13.2); strain_freq(1, 0, 0, 1).imag(-13.2);
-//     strain_freq(2, 0, 0, 1).real(19.8); strain_freq(2, 0, 0, 1).imag(-19.8);
-//     strain_freq(3, 0, 0, 1).real(26.4); strain_freq(3, 0, 0, 1).imag(-26.4);
-//     strain_freq(4, 0, 0, 1).real(33.0); strain_freq(4, 0, 0, 1).imag(-33.0);
-//     strain_freq(5, 0, 0, 1).real(39.6); strain_freq(5, 0, 0, 1).imag(-39.6);
+    Eigen::Tensor<std::complex<double>, 4> strain_freq(6, 2, 3, 3);
+    strain_freq.setConstant(0.0);
+    strain_freq(0, 0, 0, 0).real(-10.8);
+    strain_freq(1, 0, 0, 0).real(-21.6);
+    strain_freq(2, 0, 0, 0).real(-32.4);
+    strain_freq(3, 0, 0, 0).real(-43.2);
+    strain_freq(4, 0, 0, 0).real(-54.0);
+    strain_freq(5, 0, 0, 0).real(-64.8);
+    strain_freq(0, 0, 0, 1).real(6.6); strain_freq(0, 0, 0, 1).imag(-6.6);
+    strain_freq(1, 0, 0, 1).real(13.2); strain_freq(1, 0, 0, 1).imag(-13.2);
+    strain_freq(2, 0, 0, 1).real(19.8); strain_freq(2, 0, 0, 1).imag(-19.8);
+    strain_freq(3, 0, 0, 1).real(26.4); strain_freq(3, 0, 0, 1).imag(-26.4);
+    strain_freq(4, 0, 0, 1).real(33.0); strain_freq(4, 0, 0, 1).imag(-33.0);
+    strain_freq(5, 0, 0, 1).real(39.6); strain_freq(5, 0, 0, 1).imag(-39.6);
 
-//     Eigen::Tensor<double, 4> strain(6, 2, 3, 4);
-//     strain = m.f2r(strain_freq);
+    Eigen::Tensor<double, 4> strain(6, 2, 3, 4);
+    strain = m.f2r(strain_freq);
 
-//     EXPECT_DOUBLE_EQ(strain(0, 0, 0, 0), 0.1);
-//     EXPECT_DOUBLE_EQ(strain(1, 0, 0, 0), 0.2);
-//     EXPECT_DOUBLE_EQ(strain(2, 0, 0, 0), 0.3);
-//     EXPECT_DOUBLE_EQ(strain(3, 0, 0, 0), 0.4);
-//     EXPECT_DOUBLE_EQ(strain(4, 0, 0, 0), 0.5);
-//     EXPECT_DOUBLE_EQ(strain(5, 0, 0, 0), 0.6);
+    EXPECT_DOUBLE_EQ(strain(0, 0, 0, 0), 0.1);
+    EXPECT_DOUBLE_EQ(strain(1, 0, 0, 0), 0.2);
+    EXPECT_DOUBLE_EQ(strain(2, 0, 0, 0), 0.3);
+    EXPECT_DOUBLE_EQ(strain(3, 0, 0, 0), 0.4);
+    EXPECT_DOUBLE_EQ(strain(4, 0, 0, 0), 0.5);
+    EXPECT_DOUBLE_EQ(strain(5, 0, 0, 0), 0.6);
 
-//     EXPECT_DOUBLE_EQ(strain(0, 0, 0, 2), -1.0);
-//     EXPECT_DOUBLE_EQ(strain(1, 0, 0, 2), -2.0);
-//     EXPECT_DOUBLE_EQ(strain(2, 0, 0, 2), -3.0);
-//     EXPECT_DOUBLE_EQ(strain(3, 0, 0, 2), -4.0);
-//     EXPECT_DOUBLE_EQ(strain(4, 0, 0, 2), -5.0);
-//     EXPECT_DOUBLE_EQ(strain(5, 0, 0, 2), -6.0);
-// }
+    EXPECT_DOUBLE_EQ(strain(0, 0, 0, 2), -1.0);
+    EXPECT_DOUBLE_EQ(strain(1, 0, 0, 2), -2.0);
+    EXPECT_DOUBLE_EQ(strain(2, 0, 0, 2), -3.0);
+    EXPECT_DOUBLE_EQ(strain(3, 0, 0, 2), -4.0);
+    EXPECT_DOUBLE_EQ(strain(4, 0, 0, 2), -5.0);
+    EXPECT_DOUBLE_EQ(strain(5, 0, 0, 2), -6.0);
+}
 
 
 
@@ -396,9 +394,6 @@ TEST_F(AlgorithmTest, Homogenous) {
     Eigen::Array<double, 2, 1> c;
     c << lambda1,
          mu1;
-    // Eigen::Tensor<double, 2> c(2, 1);
-    // c(0, 0) = lambda1;
-    // c(1, 0) = mu1;
     Eigen::Array<double, 3, 1> prds;
     prds << 10.0, 10.0, 10.0;
 
@@ -427,9 +422,6 @@ TEST_F(AlgorithmTest, Series2) {
     Eigen::Array<double, 2, 2> c;
     c << lambda1, lambda2,
          mu1, mu2;
-    // Eigen::Tensor<double, 2> c(2, 2);
-    // c(0, 0) = lambda1; c(0, 1) = lambda2;
-    // c(1, 0) = mu1; c(1, 1) = mu2;
     Eigen::Array<double, 3, 1> prds;
     prds << 10.0, 10.0, 10.0;
 
@@ -466,9 +458,6 @@ TEST_F(AlgorithmTest, Parallel2) {
     Eigen::Array<double, 2, 2> c;
     c << lambda1, lambda2,
          mu1, mu2;
-    // Eigen::Tensor<double, 2> c(2, 2);
-    // c(0, 0) = lambda1; c(0, 1) = lambda2;
-    // c(1, 0) = mu1; c(1, 1) = mu2;
     Eigen::Array<double, 3, 1> prds;
     prds << 10.0, 10.0, 10.0;
 
@@ -512,9 +501,6 @@ TEST_F(AlgorithmTest, Series3) {
     Eigen::Array<double, 2, 3> c;
     c << lambda1, lambda2, lambda3,
          mu1, mu2, mu3;
-    // Eigen::Tensor<double, 2> c(2, 3);
-    // c(0, 0) = lambda1; c(0, 1) = lambda2; c(0, 2) = lambda3;
-    // c(1, 0) = mu1; c(1, 1) = mu2; c(1, 2) = mu3;
     Eigen::Array<double, 3, 1> prds;
     prds << 10.0, 10.0, 15.0;
 
@@ -565,9 +551,6 @@ TEST_F(AlgorithmTest, Parallel3) {
     Eigen::Array<double, 2, 3> c;
     c << lambda1, lambda2, lambda3,
          mu1, mu2, mu3;
-    // Eigen::Tensor<double, 2> c(2, 3);
-    // c(0, 0) = lambda1; c(0, 1) = lambda2; c(0, 2) = lambda3;
-    // c(1, 0) = mu1; c(1, 1) = mu2; c(1, 2) = mu3;
     Eigen::Array<double, 3, 1> prds;
     prds << 10.0, 10.0, 15.0;
 

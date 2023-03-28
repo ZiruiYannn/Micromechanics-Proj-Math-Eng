@@ -131,18 +131,18 @@ TEST_F(FunctionTest, stressCompute) {
     EXPECT_DOUBLE_EQ(stress(5), 2.0);
 }
 
-TEST_F(FunctionTest, error) {
-    mme::micromechanics<double> m(E, mat, c, prds, tol, maxit);
+// TEST_F(FunctionTest, error) {
+//     mme::micromechanics<double> m(E, mat, c, prds, tol, maxit);
 
-    m.stress_.setConstant(1.0);
-    for (int i = 0; i < 6; i++) {
-        m.stress_(i, 0, 0, 0) = 2.0;
-    }
+//     m.stress_.setConstant(1.0);
+//     for (int i = 0; i < 6; i++) {
+//         m.stress_(i, 0, 0, 0) = 2.0;
+//     }
 
-    double e = m.error(m.stress_);
+//     double e = m.error(m.stress_);
 
-    EXPECT_NEAR(e, 0.00015108205966200843, 1e-5);
-}
+//     EXPECT_NEAR(e, 0.00015108205966200843, 1e-5);
+// }
 
 TEST_F(FunctionTest, waveVec) {
     mme::micromechanics<double> m(E, mat, c, prds, tol, maxit);

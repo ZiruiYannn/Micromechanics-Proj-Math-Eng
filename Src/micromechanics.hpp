@@ -108,38 +108,44 @@ namespace mme {
 
             Precision error(const Eigen::Tensor<Precision,4, Eigen::ColMajor>& sig) const{
                 Precision err;
-                Eigen::Tensor<Precision, 1> wave_ten(3);
-                Eigen::Tensor<Precision, 2> sig_ten(3,3);
+                Eigen::Tensor<std::complex<Precision>, 1> wave_ten(3);
+                Eigen::Tensor<std::complex<Precision>, 4> sig_freq(sig.dimension(0), sig.dimension(1), sig.dimension(2), sig.dimension(3));
+                Eigen::Tensor<std::complex<Precision>, 2> sig_ten(3,3);
                 Eigen::Array<Precision,3, 1> wave_vec;
                 Eigen::Array<int,3, 1> inds;
-                Eigen::Tensor<Precision, 1> stress_dot_wave(3);
+                Eigen::Tensor<std::complex<Precision>, 1> stress_dot_wave(3);
 
+                sig_freq = r2f(sig);
+                wave_vec.setZero();
                 err = 0;
-                for (int k=0; k<dims_(2); k++) {
+                for (int k=0; k<dims_(2)/2+1; k++) {
                     for (int j=0; j<dims_(1); j++) {
                         for (int i=0; i<dims_(0); i++) {
                             inds(0) = i;
                             inds(1) = j;
                             inds(2) = k;
                             wave_vec = waveVec(inds);
-                            wave_ten(0) = wave_vec(0);
-                            wave_ten(1) = wave_vec(1);
-                            wave_ten(2) = wave_vec(2);
-                            sig_ten = vec2ten(tensor4d2array(sig, i, j, k));
+                            wave_ten(0).real(wave_vec(0));
+                            wave_ten(1).real(wave_vec(1));
+                            wave_ten(2).real(wave_vec(2));
+                            sig_ten = vec2ten(tensor4d2array(sig_freq, i, j, k));
                             stress_dot_wave = sig_ten.contract(wave_ten, Eigen::array<Eigen::IndexPair<int>, 1>{Eigen::IndexPair<int>(1, 0)});
-                            err += stress_dot_wave(0) * stress_dot_wave(0) + stress_dot_wave(1) * stress_dot_wave(1) + stress_dot_wave(2) * stress_dot_wave(2);
+                            err += std::norm(stress_dot_wave(0)) + std::norm(stress_dot_wave(1)) + std::norm(stress_dot_wave(2));
                         }
                     }
                 }
 
-                err /= dims_(0) * dims_(1) *dims_(2);
+                err /= dims_(0) * dims_(1) *(dims_(2)/2+1);
                 err = std::sqrt(err);
-
-                Precision temp = 0;
-                for (int i=0; i<6; i++) {
-                    temp += sig(i, 0, 0, 0) * sig(i, 0, 0, 0);
+                sig_ten = vec2ten(tensor4d2array(sig_freq, 0, 0, 0)); 
+                Precision sig0 = 0;
+                for (int j=0; j<3; j++) {
+                    for (int i=0; i<3; i++) {
+                        sig0 += std::norm(sig_ten(i, j));
+                    }
                 }
-                err /= temp;
+                err /= sig0;
+                
                 return err;
             }
 

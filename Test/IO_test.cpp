@@ -6,7 +6,7 @@
 class InTest: public ::testing::Test {
     protected:
     void SetUp() override {
-        auto [c_in, mat_in, prds_in] = read_material("../Input/test.in"); 
+        auto [c_in, mat_in, prds_in] = read_material("../Input/test_mat.in"); 
         c = c_in;
         mat = mat_in;
         prds = prds_in;
@@ -45,6 +45,17 @@ TEST_F(InTest, Contents) {
     EXPECT_DOUBLE_EQ(prds(0), 2.0);
     EXPECT_DOUBLE_EQ(prds(1), 2.0);
     EXPECT_DOUBLE_EQ(prds(2), 3.0);
+}
+
+TEST(InTest, strain) {
+    Eigen::Array<double, 6, 1> eps = read_strain("../Input/test_e.in");
+
+    EXPECT_DOUBLE_EQ(eps(0), 1.0);
+    EXPECT_DOUBLE_EQ(eps(1), 0.0);
+    EXPECT_DOUBLE_EQ(eps(2), 0.0);
+    EXPECT_DOUBLE_EQ(eps(3), 0.0);
+    EXPECT_DOUBLE_EQ(eps(4), 0.0);
+    EXPECT_DOUBLE_EQ(eps(5), 0.0);
 }
 
 TEST(OutTest, Working) {

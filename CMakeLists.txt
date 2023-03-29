@@ -17,9 +17,11 @@ add_subdirectory(Lib/googletest-main)
 
 ### Source files
 
-## main executable comes here
-# add_executable()
+add_executable(demo Src/demo.cpp)
 
+target_include_directories(demo PRIVATE Lib/fftw-3.3.10/api)
+target_link_libraries(demo PUBLIC fftw3)
+target_link_libraries(demo PUBLIC Eigen3::Eigen)
 
 
 ### Test files

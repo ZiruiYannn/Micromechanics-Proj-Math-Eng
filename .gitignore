@@ -5,3 +5,4 @@
 Build/*
 !Build/.gitkeep
 Src/__pycache__
+Output/*

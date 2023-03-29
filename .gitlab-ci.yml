@@ -24,6 +24,16 @@ test:
     paths:
       - Output/test.out
 
+# test run demo
+demo:
+  stage: test
+  script:
+    - cd Build
+    - ./demo "../Input/test_mat.in" "../Input/test_e.in" "../Output/demo.out" e xx
+  artifacts:
+    paths:
+      - Output/demo.out
+
 # test run visualization.py
 visualization:
   stage: test

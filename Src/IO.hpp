@@ -82,7 +82,7 @@ auto read_material(std::string const & filename) {
     return args{c, mat, prds};
 }
 
-auto read_strain(std::string const & filename) {
+Eigen::Array<double, 6, 1> read_strain(std::string const & filename) {
     Eigen::Array<double, 6, 1> eps;
     std::string e;
 

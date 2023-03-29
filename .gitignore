@@ -4,3 +4,4 @@
 # ignore build files, but keep Build directory
 Build/*
 !Build/.gitkeep
+Src/__pycache__

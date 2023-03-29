@@ -10,7 +10,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 ### Libraries
 
 add_subdirectory(Lib/eigen-3.4.0)
-# add_subdirectory(Lib/fftw-3.3.10)
+add_subdirectory(Lib/fftw-3.3.10)
 add_subdirectory(Lib/googletest-main)
 
 
@@ -32,10 +32,18 @@ target_link_libraries(IOTest PUBLIC GTest::gtest_main)
 target_link_libraries(IOTest PUBLIC Eigen3::Eigen)
 target_include_directories(IOTest PRIVATE Src)
 
+add_executable(algorithmTest Test/algorithm_test.cpp)
+
+target_include_directories(algorithmTest PRIVATE Lib/fftw-3.3.10/api)
+target_link_libraries(algorithmTest PUBLIC fftw3)
+target_link_libraries(algorithmTest PUBLIC GTest::gtest_main)
+target_link_libraries(algorithmTest PUBLIC Eigen3::Eigen)
+target_include_directories(algorithmTest PRIVATE Src)
+
 include(GoogleTest)
 
 gtest_discover_tests(IOTest)
-
+gtest_discover_tests(algorithmTest)
 
 
 

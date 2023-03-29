@@ -191,7 +191,7 @@ def main():
     prds = np.array([10, 10, 10])
     
     # Hoke's law
-    eps, sig, e = strain(Ez, mat, c, prds, 1e-10, 30)
+    eps, sig, e = strain(Ez, mat, c, prds, 1e-16, 30)
     
     avge = np.average(eps[:, :, :, 2])
     avgs = np.average(sig[:, :, :, 2])
@@ -209,7 +209,7 @@ def main():
     prds = np.array([10, 10, 10])
     
     # series
-    eps, sig, e = strain(Ez, mat, c, prds, 1e-10, 30)
+    eps, sig, e = strain(Ez, mat, c, prds, 1e-16, 30)
     
     avg1 = np.average(eps[:, :, 0:5, 2])
     avg2 = np.average(eps[:, :, 5:, 2])
@@ -223,7 +223,7 @@ def main():
     print()
     
     # parallel
-    eps, sig, e = strain(Ex, mat, c, prds, 1e-10, 30)
+    eps, sig, e = strain(Ex, mat, c, prds, 1e-16, 30)
     
     avg1 = np.average(sig[:, :, 0:5, 0])
     avg2 = np.average(sig[:, :, 5:, 0])
@@ -248,7 +248,7 @@ def main():
     prds = np.array([10, 10, 15]) 
     
     # series
-    eps, sig, e = strain(Ez, mat, c, prds, 1e-10, 30)
+    eps, sig, e = strain(Ez, mat, c, prds, 1e-16, 30)
     
     avg1 = np.average(eps[:, :, 0:5, 2])
     avg2 = np.average(eps[:, :, 5:10, 2])
@@ -266,7 +266,7 @@ def main():
     print()
     
     # parallel
-    eps, sig, e = strain(Ex, mat, c, prds, 1e-10, 30)
+    eps, sig, e = strain(Ex, mat, c, prds, 1e-16, 30)
     
     avg1 = np.average(sig[:, :, 0:5, 0])
     avg2 = np.average(sig[:, :, 5:10, 0])

@@ -5,3 +5,5 @@
 Build/*
 !Build/.gitkeep
 Src/__pycache__
+Output/*
+!Output/test_vis.out

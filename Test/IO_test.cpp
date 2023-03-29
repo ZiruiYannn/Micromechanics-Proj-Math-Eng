@@ -6,18 +6,22 @@
 class InTest: public ::testing::Test {
     protected:
     void SetUp() override {
-        auto [c_in, mat_in, prds_in] = read_material("../Input/test.in"); 
+        auto [c_in, mat_in, prds_in] = read_material("../Input/test_mat.in"); 
         c = c_in;
         mat = mat_in;
         prds = prds_in;
+
+        eps = read_strain("../Input/test_e.in");
     }
 
     Eigen::ArrayXXd c;
     Eigen::Tensor<int, 3> mat;
     Eigen::ArrayXd prds;
+
+    Eigen::Array<double, 6, 1> eps;
 };
 
-TEST_F(InTest, Dimensions) {
+TEST_F(InTest, Material_Dimensions) {
     ASSERT_EQ(c.rows(), 2);
     ASSERT_EQ(c.cols(), 3);
 
@@ -29,7 +33,7 @@ TEST_F(InTest, Dimensions) {
     ASSERT_EQ(prds.size(), 3);
 }
 
-TEST_F(InTest, Contents) {
+TEST_F(InTest, Material_Contents) {
     double nu = 0.28;
     double mod = 210e9;
     double lambda = mod*nu / ((1+nu)*(1-2*nu));
@@ -45,6 +49,15 @@ TEST_F(InTest, Contents) {
     EXPECT_DOUBLE_EQ(prds(0), 2.0);
     EXPECT_DOUBLE_EQ(prds(1), 2.0);
     EXPECT_DOUBLE_EQ(prds(2), 3.0);
+}
+
+TEST_F(InTest, Strain) {
+    EXPECT_DOUBLE_EQ(eps(0), 1.0);
+    EXPECT_DOUBLE_EQ(eps(1), 0.0);
+    EXPECT_DOUBLE_EQ(eps(2), 0.0);
+    EXPECT_DOUBLE_EQ(eps(3), 0.0);
+    EXPECT_DOUBLE_EQ(eps(4), 0.0);
+    EXPECT_DOUBLE_EQ(eps(5), 0.0);
 }
 
 TEST(OutTest, Working) {

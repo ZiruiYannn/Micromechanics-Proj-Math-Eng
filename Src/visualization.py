@@ -52,10 +52,16 @@ def visualize(x, y, z, values,
               renderer=None):
     if len(x_slices) == 0: 
         x_slices_show = False
+    else:
+        x_slices_show = True
     if len(y_slices) == 0: 
         y_slices_show = False
+    else:
+        y_slices_show = True
     if len(z_slices) == 0: 
         z_slices_show = False
+    else:
+        z_slices_show = True
     
     fig= go.Figure(data=go.Isosurface(
             x = x,
@@ -77,16 +83,76 @@ def visualize(x, y, z, values,
         fig.show(renderer=renderer)
 
 
-def main(filename_in, filename_out):
-    x, y, z, values = read_material(filename_in)
-    
-    # specify visualization parameters
-    visualize(x, y, z, values, filename=filename_out)
+
+
+
+# main
+# input: input file, output file, [options]
+# visualization options:
+#                       -disp: displays interactive visualization in browser
+#                              this option can be combined with the other options, however, if specified, it should always be the first 
+#                       -slice: displays slices in a specified dimension
+#                               parameters:
+#                                          dimension: x, y or z
+#                                          slices: a variable number of real numbers specifying the position of the slice in the specified dimension
+#                                                   should be in the range of the read in material lengths
+#                                          opacity: the opacity of the visualization
+#                                                   real number between 0 and 1, with 1 being non-opaque and 0 being completely seetrough 
+filename_in = sys.argv[1]
+filename_out = sys.argv[2]
+x, y, z, values = read_material(filename_in)
+
+pad = 0
+renderer = None
+if len(sys.argv) > 3:
+    if sys.argv[3] == "-disp":
+        renderer = 'browser'
+        pad = 1
+            
+    if len(sys.argv) > pad+3 and sys.argv[pad+3] == "-slice":
+        opct = float(sys.argv[-1])
+        
+        if sys.argv[pad+4] == "x":
+            slices = []
+            for i in range(pad+5, len(sys.argv)-1):
+                slices.append(float(sys.argv[i]))
+            
+            visualize(x, y, z, values, x_show=False, y_show=False, z_show=False, x_slices=slices, opacity=opct, filename=filename_out, renderer=renderer)
+        
+        if sys.argv[pad+4] == "y":
+            slices = []
+            for i in range(pad+5, len(sys.argv)-1):
+                slices.append(float(sys.argv[i]))
+            
+            visualize(x, y, z, values, x_show=False, y_show=False, z_show=False, y_slices=slices, opacity=opct, filename=filename_out, renderer=renderer)
+        
+        if sys.argv[pad+4] == "z":
+            slices = []
+            for i in range(pad+5, len(sys.argv)-1):
+                slices.append(float(sys.argv[i]))
+            
+            visualize(x, y, z, values, x_show=False, y_show=False, z_show=False, z_slices=slices, opacity=opct, filename=filename_out, renderer=renderer)
+            
+    elif len(sys.argv) > pad+3:
+        print("unsupported command given")
+        
+    else:
+        visualize(x, y, z, values, filename=filename_out, renderer=renderer)
 
 
 
 
 
-main(sys.argv[1], sys.argv[2])
+
+
+
+
+
+
+
+
+
+
+
 
 

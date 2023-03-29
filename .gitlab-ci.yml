@@ -12,6 +12,7 @@ build:
     paths:
       - Build/IOTest
       - Build/algorithmTest
+      - Build/main
 
 # run tests using the binary built before
 test:
@@ -24,6 +25,17 @@ test:
     paths:
       - Output/test.out
 
+# test run main
+main:
+  stage: test
+  script:
+    - cd Build
+    - ./main "../Input/test_mat.in" "../Input/test_e.in" "../Output/demo.out" e xx 1e-16 30
+  artifacts:
+    paths:
+      - Output/demo.out
+
+
 # test run visualization.py
 visualization:
   stage: test
@@ -34,7 +46,14 @@ visualization:
     - pip install packaging
   script: 
     - cd Src
-    - python visualization.py "../Output/test.out" "../Output/test.png"
+    - python visualization.py "../Output/test_vis.out" "../Output/test_vis_noopt.png"
+    - python visualization.py "../Output/test_vis.out" "../Output/test_vis_slicex.png" -slice x 0 1 2 0.7
+    - python visualization.py "../Output/test_vis.out" "../Output/test_vis_slicey.png" -slice y 0 1 2 0.7
+    - python visualization.py "../Output/test_vis.out" "../Output/test_vis_slicez.png" -slice z 0 1.5 3 0.7
   artifacts:
     paths:
-      - Output/test.png
+      - Output/test_vis_noopt.png
+      - Output/test_slicex.png
+      - Output/test_slicey.png
+      - Output/test_slicez.png
+

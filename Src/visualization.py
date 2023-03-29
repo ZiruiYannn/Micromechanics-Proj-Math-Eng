@@ -52,10 +52,16 @@ def visualize(x, y, z, values,
               renderer=None):
     if len(x_slices) == 0: 
         x_slices_show = False
+    else:
+        x_slices_show = True
     if len(y_slices) == 0: 
         y_slices_show = False
+    else:
+        y_slices_show = True
     if len(z_slices) == 0: 
         z_slices_show = False
+    else:
+        z_slices_show = True
     
     fig= go.Figure(data=go.Isosurface(
             x = x,
@@ -85,12 +91,6 @@ def visualize(x, y, z, values,
 # visualization options:
 #                       -disp: displays interactive visualization in browser
 #                              this option can be combined with the other options, however, if specified, it should always be the first 
-#                       -surf: displays a numberof equidistant surfaces in a given dimensio
-#                              parameters:
-#                                          dimension: x, y, or z
-#                                          surface_count: number of equidistant surfaces to visualize
-#                                          opacity: the opacity of the visualization
-#                                                   real number between 0 and 1, with 1 being non-opaque and 0 being completely seetrough 
 #                       -slice: displays slices in a specified dimension
 #                               parameters:
 #                                          dimension: x, y or z
@@ -110,43 +110,30 @@ if len(sys.argv) > 3:
         
         if len(sys.argv)  > 4:
             pad = 1
-        
-    if sys.argv[pad+3] == "-surf":
-        surf_count = sys.argv[pad+5]
-        opct = sys.argv[pad+6]
-        
-        if sys.argv[pad+4] == "x":
-            visualize(x, y, z, values, x_show=True, surface_count=surf_count, opacity=opct, filename=filename_out, renderer=renderer)
-        
-        if sys.argv[pad+4] == "y":
-            visualize(x, y, z, values, y_show=True, surface_count=surf_count, opacity=opct, filename=filename_out, renderer=renderer)
-        
-        if sys.argv[pad+4] == "z":
-            visualize(x, y, z, values, z_show=True, surface_count=surf_count, opacity=opct, filename=filename_out, renderer=renderer) 
             
-    elif sys.argv[pad+3] == "-slice":
-        opct = sys.argv[-1]
+    if sys.argv[pad+3] == "-slice":
+        opct = float(sys.argv[-1])
         
         if sys.argv[pad+4] == "x":
             slices = []
             for i in range(pad+5, len(sys.argv)-1):
-                slices.append(sys.argv[pad+5+i])
+                slices.append(float(sys.argv[i]))
             
-            visualize(x, y, z, values, x_slices=slices, opacity=opct, filename=filename_out, renderer=renderer)
+            visualize(x, y, z, values, x_show=False, y_show=False, z_show=False, x_slices=slices, opacity=opct, filename=filename_out, renderer=renderer)
         
         if sys.argv[pad+4] == "y":
             slices = []
             for i in range(pad+5, len(sys.argv)-1):
-                slices.append(sys.argv[pad+5+i])
+                slices.append(float(sys.argv[i]))
             
-            visualize(x, y, z, values, y_slices=slices, opacity=opct, filename=filename_out, renderer=renderer)
+            visualize(x, y, z, values, x_show=False, y_show=False, z_show=False, y_slices=slices, opacity=opct, filename=filename_out, renderer=renderer)
         
         if sys.argv[pad+4] == "z":
             slices = []
             for i in range(pad+5, len(sys.argv)-1):
-                slices.append(sys.argv[pad+5+i])
+                slices.append(float(sys.argv[i]))
             
-            visualize(x, y, z, values, z_slices=slices, opacity=opct, filename=filename_out, renderer=renderer)
+            visualize(x, y, z, values, x_show=False, y_show=False, z_show=False, z_slices=slices, opacity=opct, filename=filename_out, renderer=renderer)
             
     else:
         print("unsupported command given")

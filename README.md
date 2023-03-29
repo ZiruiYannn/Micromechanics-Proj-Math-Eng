@@ -98,13 +98,16 @@ pip install packaging
 
 ```
 
-`visualization.py` has 3 commend line arguments: input file, output file, [options]. 
+`visualization.py` takes commend line arguments: input file, output file, [options]. 
 
 options: `-disp`, `-slice`
 
 ### without options
 
-Only generate picture.
+Commend line arguments: input file, output file
+
+- input file
+- output file: If output file != None, it will generate picture in object directory.
 
 If you are in the Src folder, you use command like this:
 
@@ -113,8 +116,12 @@ python visualization.py "../Output/test_vis.out" "../Output/test_vis_noopt.png"
 ```
 
 ### -disp
+Commend line arguments: input file, output file, -disp
 
-Displays interactive visualization in browser. This option can be combined with the other options, however, if specified, it should always be the first.
+- input file
+- output file: If output file != None, it will both generate picture in object directory and in browser; if output file == None, it will only generate picture in browser.
+
+Displays interactive visualization in browser. This option can be combined with the other options, however, if specified, it should always be the first. 
 
 If you are in the Src folder, you use command like this::
 
@@ -122,11 +129,9 @@ If you are in the Src folder, you use command like this::
 python visualization.py "../Output/test_vis.out" "../Output/test_vis_noopt.png" -disp
 ```
 
-### slice
+### -slice
+Commend line arguments: input file, output file, [-disp],-slice, dimension, slices, opacity
 
-displays slices in a specified dimension
-
-parameters:
 - dimension: x, y or z
 - slices: a variable number of real numbers specifying the position of the slice in the specified dimension should be in the range of the read in material lengths
 - opacity: the opacity of the visualization real number between 0 and 1, with 1 being non-opaque and 0 being completely seetrough

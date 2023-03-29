@@ -66,6 +66,8 @@ int main(int argc, char *argv[]) {
 
     int idx;
 
+    double temp;
+
     if (index == "xx") {
         idx = 0;
     } else if (index == "yy") {
@@ -78,6 +80,23 @@ int main(int argc, char *argv[]) {
         idx = 4;
     } else if (index == "xy" || index == "yx") {
         idx = 5;
+    } else if (index == "max") {
+        idx = 0;
+        for (int k = 0; k < m.dims_(2,0); k++ ) {
+            for (int j = 0; j < m.dims_(2,0); j++ ) {
+                for (int i = 0; i < m.dims_(2,0); i++ ) {
+                    for (int ii = 0; ii < 3 - 1; ii++) {
+                        for (int jj = 0; jj < 3 - ii - 1; jj++) {
+                            if (t(jj, i, j, k) < t(jj + 1, i, j, k)) {
+                                temp = t(jj, i, j, k);
+                                t(jj, i, j, k) = t(jj + 1, i, j, k);
+                                t(jj + 1, i, j, k) = temp;
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
   
     write_material(prds, t, idx, out_filename);

@@ -82,6 +82,23 @@ auto read_material(std::string const & filename) {
     return args{c, mat, prds};
 }
 
+auto read_strain(std::string const & filename) {
+    Eigen::Array<double, 6, 1> eps;
+    std::string e;
+
+    std::ifstream file(filename);
+    std::string line;
+    std::getline(file, line);
+    std::istringstream split_line(line);
+
+    for (int i=0; i<6; i++) {
+        split_line >> e;
+        eps(i,0) = std::stod(e);
+    }
+    
+    return eps;
+}
+
 template<typename Precision>
 void write_material(Eigen::Array<Precision, 3, 1> const & prds, Eigen::Tensor<Precision, 4> const & t, int const & idx, std::string const & filename){
     std::ofstream file(filename);

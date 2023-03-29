@@ -12,7 +12,7 @@ build:
     paths:
       - Build/IOTest
       - Build/algorithmTest
-      - Build/demo
+      - Build/main
 
 # run tests using the binary built before
 test:
@@ -48,7 +48,9 @@ visualization:
     - cd Src
     - python visualization.py "../Output/test_vis.out" "../Output/test_vis_noopt.png"
     - python visualization.py "../Output/test_vis.out" "../Output/test_vis_surf.png" -surf z 4 0.5
-    - python visualization.py "../Output/test_vis.out" "../Output/test_vis_surf.png" -slice x 0 1 2 0.5
+    - python visualization.py "../Output/test_vis.out" "../Output/test_vis_slice.png" -slice x 0 1 2 0.5
   artifacts:
     paths:
       - Output/test_vis.png
+      - Output/test_surf.png
+      - Output/test_slice.png

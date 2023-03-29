@@ -104,11 +104,11 @@ x, y, z, values = read_material(filename_in)
 
 pad = 0
 renderer = None
-if len(sys.argv > 3):
+if len(sys.argv) > 3:
     if sys.argv[3] == "-disp":
         renderer = 'browser'
         
-        if len(sys.argv > 4):
+        if len(sys.argv)  > 4:
             pad = 1
         
     if sys.argv[pad+3] == "-surf":

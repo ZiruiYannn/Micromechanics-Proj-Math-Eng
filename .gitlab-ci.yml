@@ -25,12 +25,12 @@ test:
     paths:
       - Output/test.out
 
-# test run demo
-demo:
+# test run main
+main:
   stage: test
   script:
     - cd Build
-    - ./main "../Input/test_mat.in" "../Input/test_e.in" "../Output/demo.out" e xx
+    - ./main "../Input/test_mat.in" "../Input/test_e.in" "../Output/demo.out" e xx 1e-16 30
   artifacts:
     paths:
       - Output/demo.out

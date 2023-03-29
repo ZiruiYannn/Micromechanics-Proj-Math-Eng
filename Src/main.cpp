@@ -6,13 +6,9 @@
 #include <fstream>
 #include <string>
 
-
-const double tol = 1e-4;  // Define tolerance constant
-const int maxit = 100;   // Define maximum number of iterations constant
-
 int main(int argc, char *argv[]) {
-    if (argc != 6) {
-        std::cerr << "command line arguments: <input_material> <initial_strain> <output_file> <e/s> <xx/yy/zz/xy/yx/xz/zx/yz/zy>" << std::endl;
+    if (argc != 8) {
+        std::cerr << "command line arguments: <input_material> <initial_strain> <output_file> <e/s> <xx/yy/zz/xy/yx/xz/zx/yz/zy> <tolerance> <maximum number of iterations>" << std::endl;
         return 1;
     }
 
@@ -21,6 +17,8 @@ int main(int argc, char *argv[]) {
     std::string out_filename = argv[3];
     std::string e_or_s = argv[4];
     std::string index = argv[5];
+    double tol = std::stod(argv[6]);
+    int maxit = std::stoi(argv[7]);
 
     std::ifstream in_file(in_mat_filename); 
     if (!in_file) {

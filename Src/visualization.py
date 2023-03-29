@@ -64,9 +64,9 @@ def visualize(x, y, z, values,
             value = values,
             caps = dict(x_show = x_show, y_show = y_show, z_show = z_show),
             surface_count = surface_count,
-            slices_x = dict(show=x_slices_show, locations=x_slices),
-            slices_y = dict(show=y_slices_show, locations=y_slices),
-            slices_z = dict(show=z_slices_show, locations=z_slices),
+            slices_x = dict(show=x_slices_show, locations=slices),
+            slices_y = dict(show=y_slices_show, locations=slices),
+            slices_z = dict(show=z_slices_show, locations=slices),
             opacity = opacity,
         ))
     
@@ -77,16 +77,77 @@ def visualize(x, y, z, values,
         fig.show(renderer=renderer)
 
 
-def main(filename_in, filename_out):
-    x, y, z, values = read_material(filename_in)
-    
-    # specify visualization parameters
-    visualize(x, y, z, values, filename=filename_out)
+
+
+
+# main
+filename_in = sys.argv[1]
+filename_out = sys.argv[2]
+x, y, z, values = read_material(filename_in)
+
+pad = 0
+renderer = None
+if len(sys.argv > 3):
+    if sys.argv[3] == "-disp":
+        renderer = 'browser'
+        
+        if len(sys.argv > 4):
+            pad = 1
+        
+    if sys.argv[pad+3] == "-surf":
+        surf_count = sys.argv[pad+5]
+        opct = sys.argv[pad+6]
+        
+        if sys.argv[pad+4] == "x":
+            visualize(x, y, z, values, x_show=True, surface_count=surf_count, opacity=opct, filename=filename_out, renderer=renderer)
+        
+        if sys.argv[pad+4] == "y":
+            visualize(x, y, z, values, y_show=True, surface_count=surf_count, opacity=opct, filename=filename_out, renderer=renderer)
+        
+        if sys.argv[pad+4] == "z":
+            visualize(x, y, z, values, z_show=True, surface_count=surf_count, opacity=opct, filename=filename_out, renderer=renderer) 
+            
+    elif sys.argv[pad+3] == "-slice":
+        opct = sys.argv[-1]
+        
+        if sys.argv[pad+4] == "x":
+            slices = []
+            for i in range(pad+5, len(sys.argv)-1):
+                slices.append(sys.argv[pad+5+i])
+            
+            visualize(x, y, z, values, x_slices=slices, opacity=opct, filename=filename_out, renderer=renderer)
+        
+        if sys.argv[pad+4] == "y":
+            slices = []
+            for i in range(pad+5, len(sys.argv)-1):
+                slices.append(sys.argv[pad+5+i])
+            
+            visualize(x, y, z, values, y_slices=slices, opacity=opct, filename=filename_out, renderer=renderer)
+        
+        if sys.argv[pad+4] == "z":
+            slices = []
+            for i in range(pad+5, len(sys.argv)-1):
+                slices.append(sys.argv[pad+5+i])
+            
+            visualize(x, y, z, values, z_slices=slices, opacity=opct, filename=filename_out, renderer=renderer)
+            
+    else:
+        print("unsupported command given")
 
 
 
 
 
-main(sys.argv[1], sys.argv[2])
+
+
+
+
+
+
+
+
+
+
+
 
 

@@ -39,7 +39,7 @@ int main(int argc, char *argv[]) {
         return 1;
     } 
 
-    if(index != "xx" && index != "yy" && index != "zz" && index != "xy" && index != "yx" && index != "xz" && index != "zx" && index != "yz" && index != "zy") {
+    if(index != "shear" && index != "max" && index != "xx" && index != "yy" && index != "zz" && index != "xy" && index != "yx" && index != "xz" && index != "zx" && index != "yz" && index != "zy") {
         std::cerr << "the last argument should be xx/yy/zz/xy/yx/xz/zx/yz/zy" << std::endl;
         return 1;
     } 
@@ -87,6 +87,23 @@ int main(int argc, char *argv[]) {
                 for (int i = 0; i < m.dims_(2,0); i++ ) {
                     for (int ii = 0; ii < 3 - 1; ii++) {
                         for (int jj = 0; jj < 3 - ii - 1; jj++) {
+                            if (t(jj, i, j, k) < t(jj + 1, i, j, k)) {
+                                temp = t(jj, i, j, k);
+                                t(jj, i, j, k) = t(jj + 1, i, j, k);
+                                t(jj + 1, i, j, k) = temp;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    } else if (index == "shear") {
+        idx = 3;
+        for (int k = 0; k < m.dims_(2,0); k++ ) {
+            for (int j = 0; j < m.dims_(2,0); j++ ) {
+                for (int i = 0; i < m.dims_(2,0); i++ ) {
+                    for (int ii = 3; ii < 6 - 1; ii++) {
+                        for (int jj = 3; jj < 6 - ii - 1; jj++) {
                             if (t(jj, i, j, k) < t(jj + 1, i, j, k)) {
                                 temp = t(jj, i, j, k);
                                 t(jj, i, j, k) = t(jj + 1, i, j, k);

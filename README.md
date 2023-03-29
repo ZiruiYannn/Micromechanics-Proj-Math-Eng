@@ -100,7 +100,7 @@ pip install packaging
 
 `visualization.py` has 3 commend line arguments: input file, output file, [options]. 
 
-options: `-disp`, `surf`,`-slice`
+options: `-disp`, `-slice`
 
 ### without options
 

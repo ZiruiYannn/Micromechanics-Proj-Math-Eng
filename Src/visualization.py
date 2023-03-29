@@ -81,6 +81,23 @@ def visualize(x, y, z, values,
 
 
 # main
+# input: input file, output file, [options]
+# visualization options:
+#                       -disp: displays interactive visualization in browser
+#                              this option can be combined with the other options, however, if specified, it should always be the first 
+#                       -surf: displays a numberof equidistant surfaces in a given dimensio
+#                              parameters:
+#                                          dimension: x, y, or z
+#                                          surface_count: number of equidistant surfaces to visualize
+#                                          opacity: the opacity of the visualization
+#                                                   real number between 0 and 1, with 1 being non-opaque and 0 being completely seetrough 
+#                       -slice: displays slices in a specified dimension
+#                               parameters:
+#                                          dimension: x, y or z
+#                                          slices: a variable number of real numbers specifying the position of the slice in the specified dimension
+#                                                   should be in the range of the read in material lengths
+#                                          opacity: the opacity of the visualization
+#                                                   real number between 0 and 1, with 1 being non-opaque and 0 being completely seetrough 
 filename_in = sys.argv[1]
 filename_out = sys.argv[2]
 x, y, z, values = read_material(filename_in)

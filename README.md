@@ -34,7 +34,7 @@ or
 ```
 git clone https://gitlab.kuleuven.be/math-eng/h0t46a/2023/team12.git
 ```
-Doweload cmake first if you do not have it on your computer. Since we've made cmakelists.txt for you, you can use cmake to build all the code by following command:
+Download cmake first if you do not have it on your computer. Since we've made cmakelists.txt for you, you can use cmake to build all the code by following command:
 ```
 cmake -B Build
 cd Build
@@ -45,9 +45,20 @@ Then there are three executables in the Build folder. They are `main.exe`, `IOTe
 ### main.exe
 
 `main.exe` reads in the properties of a 3-dimensional composite material cuboid and the average strain of this cuboid and outputs either the stress or the strain after computation.
-`main.exe` takes 
+`main.exe` takes 7 command line arguments: in_mat, in_strain, out, e_or_s, ij, tol, maxit.
 
-- TODO
+- in_mat: material-input file 
+- in_strain: average-strain-input file
+- out: output file
+- e_or_s: indicate you want to ouput the strain or the stress
+- ij: which component of strain tensor or stress tensor should be outut. ij could be one of xx, yy, zz, xy, yx, xz, zx, yz, zy
+- tol: tolerance of error
+- maxit: max iteration number
+
+If you are in the team12 folder, you use command like this:
+```
+./main "../Input/test_mat.in" "../Input/test_e.in" "../Output/demo.out" e xx 1e-16 30
+```
 
 ### IOTest.exe
 

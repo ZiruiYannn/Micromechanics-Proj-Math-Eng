@@ -48,10 +48,31 @@ Then there are three executables in the Build folder. They are `main.exe`, `IOTe
 `main.exe` takes 
 
 ### IOTest.exe
-`IOTest.exe` tests `IO.hpp`. 
+
+`IOTest.exe` tests `IO.hpp`which contains the function for reading input files and writing output files.
+
+If you are at the folder team12, you can simply execute  algorithmTest.exe by following command:
+
+```
+cd Build
+./IOTest
+
+```
+
 
 ### algorithmTest.exe
-`algorithmTest.exe` tests `micromechanics.hpp` which contains a class named micromechanics to do the algorithm given in [1].
+
+`algorithmTest.exe` tests each member function of `micromechanics.hpp` which contains a class named micromechanics to do the algorithm given in [1].
+
+If you are at the folder team12, you can simply execute  algorithmTest.exe by following command:
+
+```
+cd Build
+./algorithmTest
+
+```
+
+
 
 ## Visualization
 
@@ -63,11 +84,34 @@ pip install kaleido
 pip install packaging
 
 ```
-`visualization.py` takes 2 commend line arguments. The first one is the data 
-``` 
-cd Src
-python visualization.py "../Output/test.out" "../Output/test.png"
-```
+
+`visualization.py` has 3 commend line arguments: input file, output file, [options]. 
+
+options: `-disp`, `-surf`,`slice`
+
+### -disp
+
+Displays interactive visualization in browser. This option can be combined with the other options, however, if specified, it should always be the first.
+
+### -surf
+
+Displays a number of equidistant surfaces in a given dimension. 
+
+parameters:
+- dimension: x, y, or z 
+- surface_count: number of equidistant surfaces to visualize 
+- opacity: the opacity of the visualization real number between 0 and 1, with 1 being non-opaque and 0 being completely seetrough
+
+example:
+
+### -slice
+
+displays slices in a specified dimension
+
+parameters:
+- dimension: x, y or z
+- slices: a variable number of real numbers specifying the position of the slice in the specified dimension should be in the range of the read in material lengths
+- opacity: the opacity of the visualization real number between 0 and 1, with 1 being non-opaque and 0 being completely seetrough
 
 
 ## Reference

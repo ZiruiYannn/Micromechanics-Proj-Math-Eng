@@ -107,11 +107,9 @@ renderer = None
 if len(sys.argv) > 3:
     if sys.argv[3] == "-disp":
         renderer = 'browser'
-        
-        if len(sys.argv)  > 4:
-            pad = 1
+        pad = 1
             
-    if sys.argv[pad+3] == "-slice":
+    if len(sys.argv) > pad+3 and sys.argv[pad+3] == "-slice":
         opct = float(sys.argv[-1])
         
         if sys.argv[pad+4] == "x":
@@ -135,8 +133,11 @@ if len(sys.argv) > 3:
             
             visualize(x, y, z, values, x_show=False, y_show=False, z_show=False, z_slices=slices, opacity=opct, filename=filename_out, renderer=renderer)
             
-    else:
+    elif len(sys.argv) > pad+3:
         print("unsupported command given")
+        
+    else:
+        visualize(x, y, z, values, filename=filename_out, renderer=renderer)
 
 
 

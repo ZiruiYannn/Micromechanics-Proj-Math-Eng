@@ -12,6 +12,7 @@ build:
     paths:
       - Build/IOTest
       - Build/algorithmTest
+      - Build/demo
 
 # run tests using the binary built before
 test:
@@ -33,6 +34,8 @@ demo:
   artifacts:
     paths:
       - Output/demo.out
+      - Output/test.out
+
 
 # test run visualization.py
 visualization:
@@ -47,4 +50,6 @@ visualization:
     - python visualization.py "../Output/test.out" "../Output/test.png"
   artifacts:
     paths:
+      - Output/demo.out
+      - Output/test.out
       - Output/test.png

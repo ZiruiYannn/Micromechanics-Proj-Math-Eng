@@ -64,9 +64,9 @@ def visualize(x, y, z, values,
             value = values,
             caps = dict(x_show = x_show, y_show = y_show, z_show = z_show),
             surface_count = surface_count,
-            slices_x = dict(show=x_slices_show, locations=slices),
-            slices_y = dict(show=y_slices_show, locations=slices),
-            slices_z = dict(show=z_slices_show, locations=slices),
+            slices_x = dict(show=x_slices_show, locations=x_slices),
+            slices_y = dict(show=y_slices_show, locations=y_slices),
+            slices_z = dict(show=z_slices_show, locations=z_slices),
             opacity = opacity,
         ))
     

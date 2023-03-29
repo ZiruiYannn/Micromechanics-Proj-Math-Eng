@@ -34,7 +34,6 @@ demo:
   artifacts:
     paths:
       - Output/demo.out
-      - Output/test.out
 
 
 # test run visualization.py
@@ -47,9 +46,7 @@ visualization:
     - pip install packaging
   script: 
     - cd Src
-    - python visualization.py "../Output/test.out" "../Output/test.png"
+    - python visualization.py "../Output/vis_test.out" "../Output/test_vis.png"
   artifacts:
     paths:
-      - Output/demo.out
-      - Output/test.out
-      - Output/test.png
+      - Output/test_vis.png
